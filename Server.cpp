@@ -52,7 +52,7 @@ void Server::createServerSocket()
 	new_fd.fd = server_fd;
 	new_fd.events = POLLIN;
 	new_fd.revents = 0;
-	poll_fds.push_back(new_fd);
+	poll_fds.push_back(new_fd);// Removes the command prefix from buffer and trims leading whitespace from the remaining string.
 }
 
 Server::Server(std::string const &port, std::string const &password)
@@ -227,6 +227,7 @@ void Server::proccesCommand(std::string buffer, int fd)
 		return;
 	}
 
+	//COMMANDS STARTS FROM HERE
 	sendResponse("Command received: " + token, fd);
 }
 
