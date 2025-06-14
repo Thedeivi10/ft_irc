@@ -1,23 +1,35 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#pragma once
 
 #include <string>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <iostream>
 
-class Client 
+
+class Client
 {
 	private:
-		int         fd;
+		int  cli_fd;
 		std::string ip;
-		int         port;
+		int port;
+		bool logIn;
+		bool registered;
+		std::string user_name;
+		std::string nick_name;
 
 	public:
-		Client(int client_fd, const struct sockaddr_in &addr);
-		
-		int         get_fd() const;
-		std::string get_ip() const;
-		int         get_port() const;
-};
+		Client(int cli_fd, std::string ip, int port);
+		~Client();
 
-#endif
+
+		void setlogIn(bool logIn);
+		void setUserName(std::string user_name);
+		void setNickName(std::string nick_name);
+		void setRegistered(bool registered);
+
+
+
+		bool getlogIn();
+		int getClifd();
+		std::string getUserName();
+		std::string getNickName();
+		bool getRegistered();
+};

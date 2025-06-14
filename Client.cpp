@@ -1,19 +1,60 @@
 #include "Client.hpp"
 
-Client::Client(int client_fd, const struct sockaddr_in &addr)
-    : fd(client_fd), ip(inet_ntoa(addr.sin_addr)), port(ntohs(addr.sin_port)) {}
-
-int Client::get_fd() const 
+Client::Client(int cli_fd, std::string ip, int port)
 {
-    return fd;
+	this->cli_fd = cli_fd;
+	this->ip = ip;
+	this->port = port;
+	this->logIn = false;
+	this->registered = false;
+	this->user_name = "";
+	this->nick_name = "";
 }
 
-std::string Client::get_ip() const 
+Client::~Client()
+{}
+
+void Client::setlogIn(bool logIn)
 {
-    return ip;
+	this->logIn = logIn;
+}
+bool Client::getlogIn()
+{
+	return logIn;
 }
 
-int Client::get_port() const 
+int Client::getClifd()
 {
-    return port;
+	return cli_fd;
 }
+
+void Client::setRegistered(bool registered)
+{
+	this->registered = registered;
+}
+
+void Client::setUserName(std::string user_name)
+{
+	this->user_name = user_name;
+}
+
+void Client::setNickName(std::string nick_name)
+{
+	this->nick_name = nick_name;
+}
+
+std::string Client::getUserName()
+{
+	return user_name;
+}
+
+std::string Client::getNickName()
+{
+	return nick_name;
+}
+
+bool Client::getRegistered()
+{
+	return registered;
+}
+
