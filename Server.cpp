@@ -97,138 +97,139 @@ Client *Server::getClient(int fd)
 void Server::sendResponse(std::string msg, int fd)
 {
 	msg = msg + '\n';
-	if (send(fd, msg.c_str(), sizeof(msg), 0) == -1)
+	if (send(fd, msg.c_str(), msg.size(), 0) == -1)
 		throw_error("Failed to send response!");
 }
 
-bool Server::checkLogIn(std::string buffer, std::string token, int fd)
+
+bool Server::checkLogIn(std::string buffer, std::string token, int fd) 
 {
 	Client *client = getClient(fd);
+	if (!client) throw_error("Error!");
 
-	if (!client)
-		throw_error("Error!");
-	if (token == "PASS" || token == "pass")
+	if (iequals(token, "PASS")) 
 	{
-		if (client->getlogIn())
-			return (sendResponse("You have already log in!", fd), true);
-		buffer.erase(0, 4);
-		size_t pos = buffer.find_first_not_of(" \t\n");
-		if (pos == std::string::npos)
+		if (client->getlogIn()) 
 		{
-			sendResponse("Invalid password1!", fd);
+			sendResponse("You have already logged in!", fd);
+			return true;
+		}
+		std::string pass = getCommandArg(buffer, token);
+		if (pass.empty()) 
+		{
+			sendResponse("Invalid password!", fd);
 			return false;
 		}
-		buffer.erase(0, pos);
-		buffer.erase(buffer.size() - 1);
-		if (buffer == this->password)	
+		if (pass == this->password)
 			client->setlogIn(true);
-		else
+		else 
 		{
-			sendResponse("Invalid password2!", fd);
+			sendResponse("Invalid password!", fd);
 			return false;
 		}
 	}
-	if (!client->getlogIn())
-		return false;
-	return (true);
+	return client->getlogIn();
 }
 
-bool Server::checkNick(std::string buffer, std::string token, int fd)
+
+bool Server::checkNick(std::string buffer, std::string token, int fd) 
 {
 	Client *client = getClient(fd);
+	if (!client) throw_error("Error!");
 
-	if (!client)
-		throw_error("Error!");
-	if (token == "NICK" || token == "nick")
+	if (iequals(token, "NICK")) 
 	{
-		buffer.erase(0, 4);
-		size_t pos = buffer.find_first_not_of(" \t\n");
-		if (pos == std::string::npos)
+		std::string nick = getCommandArg(buffer, token);
+		if (nick.empty()) 
 		{
 			sendResponse("Invalid nick!", fd);
 			return false;
 		}
-		buffer.erase(0, pos);
-		client->setNickName(buffer);
+		client->setNickName(nick);
 	}
-	if (client->getNickName() == "")
+
+	if (client->getNickName().empty())
 		return false;
-	if (client->getUserName() != "" && client->getNickName() !=)
+
+	if (!client->getUserName().empty() && !client->getRegistered()) 
+	{
+		client->setRegistered(true);
+		sendResponse("Welcome to the server " + client->getUserName(), fd);
+	}
 	return true;
 }
 
-bool Server::checkUser(std::string buffer, std::string token, int fd)
+bool Server::checkUser(std::string buffer, std::string token, int fd) 
 {
 	Client *client = getClient(fd);
+	if (!client) throw_error("Error!");
 
-	if (!client)
-		throw_error("Error!");
-	if (token == "USER" || token == "user")
+	if (iequals(token, "USER")) 
 	{
-		buffer.erase(0, 4);
-		size_t pos = buffer.find_first_not_of(" \t\n");
-		if (pos == std::string::npos)
+		std::string user = getCommandArg(buffer, token);
+		if (user.empty()) 
 		{
 			sendResponse("Invalid user!", fd);
 			return false;
 		}
-		buffer.erase(0, pos);
-		client->setUserName(buffer);
+		client->setUserName(user);
 	}
-	if (client->getUserName() == "")
+
+	if (client->getUserName().empty())
 		return false;
+
+	if (!client->getNickName().empty() && !client->getRegistered()) 
+	{
+		client->setRegistered(true);
+		sendResponse("Welcome to the server " + client->getUserName(), fd);
+	}
 	return true;
 }
 
-void Server::proccesCommand(std::string buffer, int fd)
+void Server::proccesCommand(std::string buffer, int fd) 
 {
 	Client *client = getClient(fd);
+	if (!client) throw_error("Error!");
+
+	// Sanitize input: remove trailing \r or \n
+	while (!buffer.empty() && (buffer[buffer.size() - 1] == '\n' || buffer[buffer.size() - 1] == '\r'))
+		buffer.erase(buffer.size() - 1);
+
 	std::string token;
 	std::istringstream iss(buffer);
-
 	iss >> token;
 
-	if (token == "pass")
+	if (iequals(token, "PASS")) 
 	{
-		if (!checkLogIn(buffer, token, fd))
-		{
-			sendResponse("You haven't log in yet!", fd);
-			return;
-		}
-		return ;
+		checkLogIn(buffer, token, fd);
+		return;
 	}
-	else if (token == "user")
+	else if (iequals(token, "USER")) 
 	{
-		if (!checkUser(buffer, token, fd))
-		{
-			sendResponse("You haven't user yet!", fd);
-			return ;
-		}
-		return ;
+		checkUser(buffer, token, fd);
+		return;
 	}
-	else if (token == "nick")
+	else if (iequals(token, "NICK")) 
 	{
-		if (!checkNick(buffer, token, fd))
-		{
-			sendResponse("You haven't nickname yet!", fd);
-			return ;
-		}
-		return ;
+		checkNick(buffer, token, fd);
+		return;
 	}
-	
-	if (!client->getlogIn())
+
+	// All other commands require login and registration
+	if (!client->getlogIn()) 
 	{
-		sendResponse("You haven't log in yet!", fd);
-		return ;
+		sendResponse("You haven't logged in yet!", fd);
+		return;
 	}
-	else if (!client->getRegistered())
+	if (!client->getRegistered()) 
 	{
-		sendResponse("You haven't register yet!", fd);
-		return ;
+		sendResponse("You haven't registered yet!", fd);
+		return;
 	}
-	std::string msg = "Welcome to the server " + client->getUserName();
-	sendResponse(msg, fd);
+
+	sendResponse("Command received: " + token, fd);
 }
+
 
 void Server::recieved_data(int fd)
 {

@@ -50,4 +50,7 @@ class Server
 		void sendResponse(std::string msg, int fd);
 };
 
+std::string getCommandArg(std::string buffer, const std::string &cmd);
+std::string trimLeading(std::string s);
+bool iequals(const std::string &a, const std::string &b);
 

@@ -6,7 +6,7 @@ CXXFLAGS:= -Wall -Wextra -Werror -std=c++98
 NAME    := irc_server
 
 # Source files
-SRCS    := main.cpp Server.cpp Client.cpp
+SRCS    := main.cpp Server.cpp Client.cpp Helpers.cpp
 
 # Object files
 OBJS    := $(SRCS:.cpp=.o)
