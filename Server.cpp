@@ -52,7 +52,7 @@ void Server::createServerSocket()
 	new_fd.fd = server_fd;
 	new_fd.events = POLLIN;
 	new_fd.revents = 0;
-	poll_fds.push_back(new_fd);// Removes the command prefix from buffer and trims leading whitespace from the remaining string.
+	poll_fds.push_back(new_fd);
 }
 
 Server::Server(std::string const &port, std::string const &password)
@@ -102,89 +102,105 @@ void Server::sendResponse(std::string msg, int fd)
 }
 
 
-bool Server::checkLogIn(std::string buffer, std::string token, int fd) 
+void Server::checkLogIn(std::string buffer, std::string token, int fd) 
 {
 	Client *client = getClient(fd);
-	if (!client) throw_error("Error!");
 
-	if (iequals(token, "PASS")) 
+	if (!client) 
+		throw_error("Error!");
+
+	if (client->getlogIn()) 
 	{
-		if (client->getlogIn()) 
-		{
-			sendResponse("You have already logged in!", fd);
-			return true;
-		}
-		std::string pass = getCommandArg(buffer, token);
-		if (pass.empty()) 
-		{
-			sendResponse("Invalid password!", fd);
-			return false;
-		}
-		if (pass == this->password)
-			client->setlogIn(true);
-		else 
-		{
-			sendResponse("Invalid password!", fd);
-			return false;
-		}
+		sendResponse("You have already logged in!", fd);
+		return ;
 	}
-	return client->getlogIn();
+	std::string pass = getCommandArg(buffer, token);
+	if (pass.empty()) 
+	{
+		sendResponse("Invalid password!", fd);
+		return ;
+	}
+	if (pass == this->password)
+		client->setlogIn(true);
+	else 
+	{
+		sendResponse("Invalid password!", fd);
+		return ;
+	}
+
 }
 
-
-bool Server::checkNick(std::string buffer, std::string token, int fd) 
+void Server::checkNick(std::string buffer, std::string token, int fd) 
 {
 	Client *client = getClient(fd);
-	if (!client) throw_error("Error!");
+	if (!client) 
+		throw_error("Error!");
 
-	if (iequals(token, "NICK")) 
+	std::string nick = getCommandArg(buffer, token);
+	if (nick.empty()) 
 	{
-		std::string nick = getCommandArg(buffer, token);
-		if (nick.empty()) 
-		{
-			sendResponse("Invalid nick!", fd);
-			return false;
-		}
-		client->setNickName(nick);
+		sendResponse("Invalid nick!", fd);
+		return ;
 	}
-
-	if (client->getNickName().empty())
-		return false;
-
-	if (!client->getUserName().empty() && !client->getRegistered()) 
-	{
-		client->setRegistered(true);
-		sendResponse("Welcome to the server " + client->getUserName(), fd);
-	}
-	return true;
+	client->setNickName(nick);
+	std::string ress = ": 001 " + nick + " : s'up buddy!" + "\r";
+	sendResponse(ress, fd);
+	return ;
 }
 
-bool Server::checkUser(std::string buffer, std::string token, int fd) 
+void Server::checkUser(std::string buffer, std::string token, int fd) 
 {
 	Client *client = getClient(fd);
-	if (!client) throw_error("Error!");
+	if (!client) 
+		throw_error("Error!");
 
-	if (iequals(token, "USER")) 
+	std::string user = getCommandArg(buffer, token);
+	if (user.empty()) 
 	{
-		std::string user = getCommandArg(buffer, token);
-		if (user.empty()) 
-		{
-			sendResponse("Invalid user!", fd);
-			return false;
-		}
-		client->setUserName(user);
+		sendResponse("Invalid user!", fd);
+		return ;
 	}
+	client->setUserName(user);
 
-	if (client->getUserName().empty())
-		return false;
 
-	if (!client->getNickName().empty() && !client->getRegistered()) 
-	{
-		client->setRegistered(true);
-		sendResponse("Welcome to the server " + client->getUserName(), fd);
-	}
-	return true;
+	return ;
 }
+
+bool Server::checkRegistration(std::string buffer, std::string token, int fd)
+{
+	Client *client = getClient(fd);
+
+	if (iequals(token, "PASS"))
+		checkLogIn(buffer, token, fd);
+	else if (iequals(token, "USER"))
+		checkUser(buffer, token, fd);
+	else if (iequals(token, "NICK"))
+		checkNick(buffer, token, fd);
+
+	if (client->getlogIn() && client->getUserName() != "" && client->getNickName() != "")
+		return true;
+	return false;
+}
+
+bool Server::iequalscommands(std::string token, std::string &buffer)
+{
+	if (iequals(token, "JOIN") || iequals(token, "PART") || iequals(token, "MODE"))
+	{
+		buffer = getCommandArg(buffer, token);
+		return true;
+	}
+	else if (iequals(token, "LIST") || iequals(token, "INVITE") || iequals(token, "KICK"))
+	{
+		buffer = getCommandArg(buffer, token);
+		return true;
+	}
+	else if (iequals(token, "TOPIC")|| iequals(token, "PRIVMSG"))
+	{
+		buffer = getCommandArg(buffer, token);
+		return true;
+	}
+	return false;
+}	
 
 void Server::proccesCommand(std::string buffer, int fd) 
 {
@@ -199,37 +215,38 @@ void Server::proccesCommand(std::string buffer, int fd)
 	std::istringstream iss(buffer);
 	iss >> token;
 
-	if (iequals(token, "PASS")) 
+	if (iequals(token, "PASS") || iequals(token, "USER") || iequals(token, "NICK") || iequals(token, "CAP"))
 	{
-		checkLogIn(buffer, token, fd);
-		return;
+		if (iequals(token, "CAP"))
+			return ;
+		if (!checkRegistration(buffer, token, fd))
+			return ;
 	}
-	else if (iequals(token, "USER")) 
+	else if (!client->getlogIn() || client->getUserName() == "" || client->getNickName() == "")
+		sendResponse("you haven't register yet!", fd);
+	else if (iequalscommands(token, buffer))
 	{
-		checkUser(buffer, token, fd);
-		return;
+		if (iequals(token, "JOIN"))
+			ft_join(buffer, fd);
+		else if (iequals(token, "PART"))
+			ft_part(buffer, fd);
+		else if (iequals(token, "MODE"))
+			ft_mode(buffer, fd);
+		else if (iequals(token, "LIST"))
+			ft_list(buffer, fd);
+		else if (iequals(token, "INVITE"))
+			ft_invite(buffer, fd);
+		else if (iequals(token, "KICK"))
+			ft_kick(buffer, fd);
+		else if (iequals(token, "TOPIC"))
+			ft_topic(buffer, fd);
+		else if (iequals(token, "PRIVMSG"))
+			ft_privmsg(buffer, fd);
 	}
-	else if (iequals(token, "NICK")) 
-	{
-		checkNick(buffer, token, fd);
-		return;
-	}
-
-	// All other commands require login and registration
-	if (!client->getlogIn()) 
-	{
-		sendResponse("You haven't logged in yet!", fd);
-		return;
-	}
-	if (!client->getRegistered()) 
-	{
-		sendResponse("You haven't registered yet!", fd);
-		return;
-	}
-
-	//COMMANDS STARTS FROM HERE
-	sendResponse("Command received: " + token, fd);
+	else
+		sendResponse("Command not found: " + token, fd);
 }
+
 
 
 void Server::recieved_data(int fd)
@@ -241,11 +258,28 @@ void Server::recieved_data(int fd)
 	if (bytes_read == 0)
 	{
 		std::cout << "Client has been desconnected " << fd << std::endl;
-		close(fd);
+		close_client(fd);
 		return ;
 	}
-	buffer[bytes_read] = '\0';
-	proccesCommand(buffer, fd);
+	else
+	{
+		buffer[bytes_read] = '\0';
+		this->_buffer += buffer;
+
+		if (strstr(_buffer.c_str(), "\r\n") || strchr(_buffer.c_str(), '\n'))
+		{
+			std::istringstream iss(_buffer);
+			std::string line;
+			while (getline(iss, line))
+				proccesCommand(line, fd);
+
+			_buffer.clear();
+		}
+		else
+		{
+			setbuffer(this->_buffer);
+		}
+	}
 }
 
 void Server::launchServer()
@@ -275,3 +309,48 @@ void Server::init()
 	std::cout << "Server has been created!" << std::endl;
 	launchServer();
 }
+
+void Server::close_client(int fd)
+{
+	std::vector<struct pollfd>::iterator itt = poll_fds.begin();
+	while (itt != poll_fds.end())
+	{
+		if (itt->fd == fd)
+			poll_fds.erase(itt);
+		else
+			++itt;
+	}
+
+	std::vector<Client>::iterator it = clients_vector.begin();
+	while (it != clients_vector.end())
+	{
+		if (it->getClifd() == fd)
+		{
+			close(fd);
+			it = clients_vector.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+void Server::setbuffer(std::string buffer)
+{
+	this->_buffer = buffer;
+}
+
+std::string Server::getbuffer()
+{
+	return _buffer;
+}
+
+bool Server::Channel_already_created(std::string name)
+{
+	for (size_t i = 0; i < channels_vector.size(); i++)
+	{
+		if (channels_vector[i].getChannelName() == name)
+			return true;
+	}
+	return false;
+}
+

@@ -13,10 +13,13 @@
 #include <unistd.h>     // for close
 #include <arpa/inet.h>  // for inet_ntoa, ntohs
 #include <csignal>
+#include <cstring>
 #include <sstream>
 #include "Client.hpp"
+#include "Channel.hpp"
 
 class Client;
+class Channel;
 
 class Server
 {
@@ -27,6 +30,9 @@ class Server
 		static bool g_signal;
 		std::vector <struct pollfd> poll_fds;
 		std::vector <Client> clients_vector;
+		std::string _buffer;
+
+		std::vector <Channel> channels_vector;
 
 
 	public:
@@ -44,13 +50,44 @@ class Server
 		void accept_connection();
 		void recieved_data(int fd);
 		void proccesCommand(std::string buffer, int fd);
-		bool checkLogIn(std::string buffer, std::string token, int fd);
-		bool checkNick(std::string buffer, std::string token, int fd);
-		bool checkUser(std::string buffer, std::string token, int fd);
+		void checkLogIn(std::string buffer, std::string token, int fd);
+		void checkNick(std::string buffer, std::string token, int fd);
+		void checkUser(std::string buffer, std::string token, int fd);
 		void sendResponse(std::string msg, int fd);
+
+
+		//new methods!
+		void close_client(int fd);
+
+		bool checkRegistration(std::string buffer, std::string token, int fd);
+
+		bool iequalscommands(std::string toke, std::string &buffer);
+
+		bool Channel_already_created(std::string name);
+
+
+		//COMMANDS
+		void ft_invite(std::string buffer, int fd);
+		void ft_join(std::string buffer, int fd);
+		void ft_kick(std::string buffer, int fd);
+		void ft_list(std::string buffer, int fd);
+		void ft_mode(std::string buffer, int fd);
+		void ft_part(std::string buffer, int fd);
+		void ft_privmsg(std::string buffer, int fd);
+		void ft_topic(std::string buffer, int fd);
+
+		void setbuffer(std::string buffer);
+		std::string getbuffer();
 };
 
 std::string getCommandArg(std::string buffer, const std::string &cmd);
 std::string trimLeading(std::string s);
 bool iequals(const std::string &a, const std::string &b);
-
+void ft_invite(std::string buffer, int fd);
+void ft_join(std::string buffer, int fd);
+void ft_list(std::string buffer, int fd);
+void ft_kick(std::string buffer, int fd);
+void ft_topic(std::string buffer, int fd);
+void ft_privmsg(std::string buffer, int fd);
+void ft_mode(std::string buffer, int fd);
+void ft_part(std::string buffer, int fd);

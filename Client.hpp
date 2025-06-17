@@ -14,6 +14,7 @@ class Client
 		bool registered;
 		std::string user_name;
 		std::string nick_name;
+		bool admin;
 
 	public:
 		Client(int cli_fd, std::string ip, int port);

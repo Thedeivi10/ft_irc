@@ -1,4 +1,3 @@
-# Compiler and Flags
 CXX     := c++
 CXXFLAGS:= -Wall -Wextra -Werror -std=c++98
 
@@ -6,7 +5,12 @@ CXXFLAGS:= -Wall -Wextra -Werror -std=c++98
 NAME    := irc_server
 
 # Source files
-SRCS    := main.cpp Server.cpp Client.cpp Helpers.cpp
+SRCS    := main.cpp Server.cpp Client.cpp Helpers.cpp Channel.cpp
+
+COMMANDS := ft_invite.cpp ft_kick.cpp ft_part.cpp ft_privmsg.cpp \
+            ft_join.cpp ft_list.cpp ft_mode.cpp ft_topic.cpp
+
+SRCS     += $(addprefix commands/, $(COMMANDS))
 
 # Object files
 OBJS    := $(SRCS:.cpp=.o)
