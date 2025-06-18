@@ -2,22 +2,28 @@
 
 void Server::ft_join(std::string buffer, int fd)
 {
-	buffer += " (joining)";
-	sendResponse(buffer, fd);
-	if (!buffer.empty() && buffer[0] == '#')
-    	buffer.erase(0, 1);
-	if (Channel_already_created(buffer))
+	std::istringstream iss(buffer);
+
+	std::string token;
+
+	iss >> token;
+	if (!token.empty() && token [0] == '#')
+    	token.erase(0, 1);
+	else
 	{
-		//add_to_channel(fd);
+		sendResponse("Invalid name Channel", fd);
+		 return;
+	}
+	if (Channel_already_created(token))
+	{
+		Channel *channel  = getChannel(token);
+		channel->addNewMember(fd);
+		std::cout << "already created!" << std::endl; 
 		return;
 	}
-	Channel chanel(buffer);
-	return 
-	
-	
-	
-	
-	
-	
-	;
+	Channel channel(token, fd);
+	channels_vector.push_back(channel);
+	std::string newchannelname = "New channel: '" + token + "' has been created!";
+	sendResponse(newchannelname,fd);
+	return;
 }

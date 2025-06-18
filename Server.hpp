@@ -66,6 +66,14 @@ class Server
 
 		bool Channel_already_created(std::string name);
 
+		Channel *getChannel(std::string name);
+
+		Client *getClientByNick(std::string nick);
+
+		void channelSendResponse(std::string channel, std::string response, int fd);
+
+		void removeChannel(std::string channelName);
+
 
 		//COMMANDS
 		void ft_invite(std::string buffer, int fd);

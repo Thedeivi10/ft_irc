@@ -142,7 +142,7 @@ bool Server::isNickTaken(const std::string& nick) {
 void Server::checkNick(std::string buffer, std::string token, int fd) 
 {
 	const std::string invalidChars = " ,*?!@.";
-	const std::string invalidStart = "$:#&~%";
+	const std::string invalidStart = "$:#&~%+";
 
 
 	Client *client = getClient(fd);
@@ -299,6 +299,9 @@ void Server::recieved_data(int fd)
 
 void Server::launchServer()
 {
+	signal(SIGINT, Server::signal_handler);
+	signal(SIGQUIT, Server::signal_handler);
+
 	while (!g_signal)
 	{
 		if (poll(&poll_fds[0], poll_fds.size(), -1) == -1)
@@ -369,3 +372,51 @@ bool Server::Channel_already_created(std::string name)
 	return false;
 }
 
+Channel *Server::getChannel(std::string name)
+{
+	for (size_t i = 0; i < channels_vector.size(); i++)
+	{
+		if(channels_vector[i].getChannelName() == name)
+			return &channels_vector[i];
+	}
+	return NULL;
+}
+
+Client *Server::getClientByNick(std::string nick)
+{
+	for (size_t i = 0; i < clients_vector.size(); i++)
+	{
+		if (clients_vector[i].getNickName() == nick)
+			return &clients_vector[i];
+	}
+	return NULL;
+}
+
+
+void Server::channelSendResponse(std::string channelName, std::string response, int fd)
+{
+    Channel *channel = getChannel(channelName);
+
+    if (!channel)
+        return;
+
+    std::vector<std::pair<int, bool> > clients = channel->getClients_pairs();
+    for (size_t i = 0; i < clients.size(); ++i)
+    {
+		if (clients[i].first == fd)
+			continue ;
+        sendResponse(response, clients[i].first);
+    }
+}
+
+void Server::removeChannel(std::string channelName)
+{
+    for (std::vector<Channel>::iterator it = channels_vector.begin(); it != channels_vector.end(); ++it) 
+    {
+        if (it->getChannelName() == channelName) 
+        {
+            channels_vector.erase(it);
+            break;
+        }
+    }
+}

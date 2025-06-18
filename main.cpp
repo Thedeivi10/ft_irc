@@ -30,8 +30,6 @@ int main(int ac, char **av)
 		return 1;
 	try
 	{
-		signal(SIGINT, Server::signal_handler);
-		signal(SIGQUIT, Server::signal_handler);
 		Server server(av[1], av[2]);
 		server.init();
 
