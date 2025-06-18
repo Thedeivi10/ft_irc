@@ -51,6 +51,7 @@ class Server
 		void recieved_data(int fd);
 		void proccesCommand(std::string buffer, int fd);
 		void checkLogIn(std::string buffer, std::string token, int fd);
+		bool isNickTaken(const std::string& nick);
 		void checkNick(std::string buffer, std::string token, int fd);
 		void checkUser(std::string buffer, std::string token, int fd);
 		void sendResponse(std::string msg, int fd);

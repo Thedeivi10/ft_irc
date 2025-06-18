@@ -130,14 +130,28 @@ void Server::checkLogIn(std::string buffer, std::string token, int fd)
 
 }
 
+bool Server::isNickTaken(const std::string& nick) {
+    for (std::vector<Client>::iterator it = clients_vector.begin(); it != clients_vector.end(); ++it) {
+        if (it->getNickName() == nick) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Server::checkNick(std::string buffer, std::string token, int fd) 
 {
+	const std::string invalidChars = " ,*?!@.";
+	const std::string invalidStart = "$:#&~%";
+
+
 	Client *client = getClient(fd);
 	if (!client) 
 		throw_error("Error!");
 
 	std::string nick = getCommandArg(buffer, token);
-	if (nick.empty()) 
+	if (nick.empty() || nick.find_first_of(invalidChars) != std::string::npos
+		|| invalidStart.find(nick[0]) !=  std::string::npos || isNickTaken(nick)) 
 	{
 		sendResponse("Invalid nick!", fd);
 		return ;
@@ -257,6 +271,7 @@ void Server::recieved_data(int fd)
 		throw_error("Failed to recieved data!");
 	if (bytes_read == 0)
 	{
+		//si cliente esta en el canal lo tenemops que eliminar del canal
 		std::cout << "Client has been desconnected " << fd << std::endl;
 		close_client(fd);
 		return ;
