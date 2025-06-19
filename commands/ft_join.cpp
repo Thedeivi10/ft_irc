@@ -31,11 +31,11 @@ void Server::ft_join(std::string buffer, int fd)
 	channels_vector.push_back(channel);
 	Client *client = getClientByFd(fd);
 	std::cout << client->getUserName();
-	std::string joinMsg = ":" + client->getNickName() +"!" + client->getUserName() + "@localhost JOIN #" + channel.getChannelName() +  "\r\n";
+	std::string joinMsg = fillmessage(JOIN_START, channel.getChannelName(), fd);
 	sendResponse(joinMsg, fd);
-	std::string namreply = ":" + this->name + " 353 " + client->getNickName() + " = #" + channel.getChannelName() + " :@" + client->getNickName() + "\r\n";
+	std::string namreply = fillmessage(JOIN_353, channel.getChannelName(), fd);
 	sendResponse(namreply,fd);
-	std::string endofnames = ":" + this->name + " 366 " + client->getNickName() + " = #" + channel.getChannelName() + " :End of NAMES list" + "\r\n";
+	std::string endofnames = fillmessage(JOIN_366, channel.getChannelName(), fd);
 	sendResponse(endofnames, fd);
 	return;
 }

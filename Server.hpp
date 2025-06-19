@@ -17,6 +17,7 @@
 #include <sstream>
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "irc_messages.hpp"
 
 class Client;
 class Channel;
@@ -74,6 +75,8 @@ class Server
 		void channelSendResponse(std::string channel, std::string response, int fd);
 
 		void removeChannel(std::string channelName);
+
+		std::string fillmessage(int mesage_type, std::string channelName, int fd);
 
 
 		//COMMANDS
