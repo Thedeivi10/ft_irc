@@ -26,7 +26,7 @@ std::string Server::fillmessage(int mesage_type, std::string channelName, int fd
 			joinMsg = ":" + this->name + " 353 " + client->getNickName() + " = #" + channel->getChannelName() + " :@" + client->getNickName() + "\r\n";
 			break;
 		case (JOIN_366):
-			joinMsg = ":" + this->name + " 366 " + client->getNickName() + " = #" + channel->getChannelName() + " :End of NAMES list" + "\r\n";
+			joinMsg = ":" + this->name + " 366 " + client->getNickName() + " #" + channel->getChannelName() + " :End of NAMES list" + "\r\n";
 			break;
 		default:
 			break;
