@@ -32,7 +32,6 @@ int main(int ac, char **av)
 	{
 		Server server(av[1], av[2]);
 		server.init();
-
 	}
 	catch (...)
 	{

@@ -31,7 +31,7 @@ class Server
 		std::vector <struct pollfd> poll_fds;
 		std::vector <Client> clients_vector;
 		std::string _buffer;
-
+		std::string name;
 		std::vector <Channel> channels_vector;
 
 
@@ -69,6 +69,7 @@ class Server
 		Channel *getChannel(std::string name);
 
 		Client *getClientByNick(std::string nick);
+		Client *getClientByFd(int fd);
 
 		void channelSendResponse(std::string channel, std::string response, int fd);
 

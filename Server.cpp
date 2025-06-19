@@ -14,6 +14,7 @@ Server::Server()
 {
 	this->port = 0;
 	this->password = "";
+	this->name = "localhost.irc";
 }
 
 Server::~Server()
@@ -81,7 +82,7 @@ void Server::accept_connection()
 	Client client(client_fd, inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port));
 	clients_vector.push_back(client);
 	std::cout << "Connection has been accetpted! to ip: " <<  inet_ntoa(cli_addr.sin_addr) << std::endl;
-	sendResponse("Password baby", client_fd);
+	sendResponse("Password baby\r", client_fd);
 }
 
 Client *Server::getClient(int fd)
@@ -127,7 +128,7 @@ void Server::checkLogIn(std::string buffer, std::string token, int fd)
 		sendResponse("Invalid password!", fd);
 		return ;
 	}
-
+	sendResponse("Please put your Nickname",fd);
 }
 
 bool Server::isNickTaken(const std::string& nick) {
@@ -151,14 +152,17 @@ void Server::checkNick(std::string buffer, std::string token, int fd)
 
 	std::string nick = getCommandArg(buffer, token);
 	if (nick.empty() || nick.find_first_of(invalidChars) != std::string::npos
-		|| invalidStart.find(nick[0]) !=  std::string::npos || isNickTaken(nick) || nick.find(' ')) 
+		|| invalidStart.find(nick[0]) !=  std::string::npos || isNickTaken(nick) || nick.find(' ') != std::string::npos) 
 	{
 		sendResponse("Invalid nick!", fd);
 		return ;
 	}
 	client->setNickName(nick);
+	client->setLogNick(true);
 	std::string ress = ": 001 " + nick + " : s'up buddy!" + "\r";
 	sendResponse(ress, fd);
+	if (!client->getRegistered())
+		sendResponse("Please put your User\r", fd);
 	return ;
 }
 
@@ -174,9 +178,14 @@ void Server::checkUser(std::string buffer, std::string token, int fd)
 		sendResponse("Invalid user!", fd);
 		return ;
 	}
-	client->setUserName(user);
+	std::istringstream iss(user);
+	std::string cleanUser;
 
-
+	iss >> cleanUser;
+	client->setUserName(cleanUser);
+	if (!client->getRegistered())
+		sendResponse("Welcome to our irc\r", fd);
+	client->setRegistered(true);
 	return ;
 }
 
@@ -186,10 +195,14 @@ bool Server::checkRegistration(std::string buffer, std::string token, int fd)
 
 	if (iequals(token, "PASS"))
 		checkLogIn(buffer, token, fd);
-	else if (iequals(token, "USER"))
-		checkUser(buffer, token, fd);
-	else if (iequals(token, "NICK"))
+	else if(!client->getlogIn())
+		sendResponse("Please before nick or user put your password\r", fd);
+	else if (iequals(token, "NICK") && client->getlogIn())
 		checkNick(buffer, token, fd);
+	else if (!client->getLogNick())
+		sendResponse("Please before user put your nickname\r", fd);
+	else if (iequals(token, "USER") && client->getLogNick())
+		checkUser(buffer, token, fd);
 
 	if (client->getlogIn() && client->getUserName() != "" && client->getNickName() != "")
 		return true;
@@ -299,11 +312,10 @@ void Server::recieved_data(int fd)
 
 void Server::launchServer()
 {
-	signal(SIGINT, Server::signal_handler);
-	signal(SIGQUIT, Server::signal_handler);
-
 	while (!g_signal)
 	{
+		signal(SIGINT, Server::signal_handler);
+		signal(SIGQUIT, Server::signal_handler);
 		if (poll(&poll_fds[0], poll_fds.size(), -1) == -1)
 			throw_error("Poll has failed!");
 
@@ -392,6 +404,15 @@ Client *Server::getClientByNick(std::string nick)
 	return NULL;
 }
 
+Client *Server::getClientByFd(int fd)
+{
+	for (size_t i = 0; i < clients_vector.size(); i++)
+	{
+		if (clients_vector[i].getClifd() == fd)
+			return &clients_vector[i];
+	}
+	return NULL;
+}
 
 void Server::channelSendResponse(std::string channelName, std::string response, int fd)
 {

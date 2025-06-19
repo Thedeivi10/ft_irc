@@ -11,6 +11,7 @@ class Client
 		std::string ip;
 		int port;
 		bool logIn;
+		bool logNick;
 		bool registered;
 		std::string user_name;
 		std::string nick_name;
@@ -22,6 +23,7 @@ class Client
 
 
 		void setlogIn(bool logIn);
+		void setLogNick(bool logNick);
 		void setUserName(std::string user_name);
 		void setNickName(std::string nick_name);
 		void setRegistered(bool registered);
@@ -29,8 +31,10 @@ class Client
 
 
 		bool getlogIn();
+		bool getLogNick();
 		int getClifd();
 		std::string getUserName();
 		std::string getNickName();
+		std::string getIp();
 		bool getRegistered();
 };

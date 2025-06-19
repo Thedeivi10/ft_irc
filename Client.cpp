@@ -6,6 +6,7 @@ Client::Client(int cli_fd, std::string ip, int port)
 	this->ip = ip;
 	this->port = port;
 	this->logIn = false;
+	this->logNick = false;
 	this->registered = false;
 	this->user_name = "";
 	this->nick_name = "";
@@ -19,15 +20,28 @@ void Client::setlogIn(bool logIn)
 {
 	this->logIn = logIn;
 }
+
+void Client::setLogNick(bool logNick)
+{
+	this->logNick = logNick;
+}
+
 bool Client::getlogIn()
 {
 	return logIn;
+}
+
+bool Client::getLogNick()
+{
+	return this->logNick;
 }
 
 int Client::getClifd()
 {
 	return cli_fd;
 }
+
+
 
 void Client::setRegistered(bool registered)
 {
@@ -52,6 +66,11 @@ std::string Client::getUserName()
 std::string Client::getNickName()
 {
 	return nick_name;
+}
+
+std::string Client::getIp()
+{
+	return this->ip;
 }
 
 bool Client::getRegistered()

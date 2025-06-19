@@ -14,8 +14,9 @@ void Server::ft_join(std::string buffer, int fd)
 		sendResponse("Invalid name Channel", fd);
 		 return;
 	}
-	if (token.find_first_of(invalidChars) != std::string::npos || (token.length() > 1 && token.substr(0,2)== "^G") || token.find(' '))
-	{
+	if (token.find_first_of(invalidChars) != std::string::npos || (token.length() > 1 && token.substr(0,2)== "^G")
+		|| token.find(' ') != std::string::npos)
+	{  
 		sendResponse("Invalid character in the channel's name", fd);
 		return ;
 	}
@@ -28,7 +29,13 @@ void Server::ft_join(std::string buffer, int fd)
 	}
 	Channel channel(token, fd);
 	channels_vector.push_back(channel);
-	std::string newchannelname = "New channel: '" + token + "' has been created!";
-	sendResponse(newchannelname,fd);
+	Client *client = getClientByFd(fd);
+	std::cout << client->getUserName();
+	std::string joinMsg = ":" + client->getNickName() +"!" + client->getUserName() + "@localhost JOIN #" + channel.getChannelName() +  "\r\n";
+	sendResponse(joinMsg, fd);
+	std::string namreply = ":" + this->name + " 353 " + client->getNickName() + " = #" + channel.getChannelName() + " :@" + client->getNickName() + "\r\n";
+	sendResponse(namreply,fd);
+	std::string endofnames = ":" + this->name + " 366 " + client->getNickName() + " = #" + channel.getChannelName() + " :End of NAMES list" + "\r\n";
+	sendResponse(endofnames, fd);
 	return;
 }
