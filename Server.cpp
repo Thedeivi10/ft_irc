@@ -81,7 +81,7 @@ void Server::accept_connection()
 	Client client(client_fd, inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port));
 	clients_vector.push_back(client);
 	std::cout << "Connection has been accetpted! to ip: " <<  inet_ntoa(cli_addr.sin_addr) << std::endl;
-	
+	sendResponse("Password baby", client_fd);
 }
 
 Client *Server::getClient(int fd)
@@ -141,7 +141,7 @@ bool Server::isNickTaken(const std::string& nick) {
 
 void Server::checkNick(std::string buffer, std::string token, int fd) 
 {
-	const std::string invalidChars = " ,*?!@.";
+	const std::string invalidChars = ",*?!@.";
 	const std::string invalidStart = "$:#&~%+";
 
 
@@ -151,7 +151,7 @@ void Server::checkNick(std::string buffer, std::string token, int fd)
 
 	std::string nick = getCommandArg(buffer, token);
 	if (nick.empty() || nick.find_first_of(invalidChars) != std::string::npos
-		|| invalidStart.find(nick[0]) !=  std::string::npos || isNickTaken(nick)) 
+		|| invalidStart.find(nick[0]) !=  std::string::npos || isNickTaken(nick) || nick.find(' ')) 
 	{
 		sendResponse("Invalid nick!", fd);
 		return ;

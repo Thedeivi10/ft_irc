@@ -3,8 +3,8 @@
 void Server::ft_join(std::string buffer, int fd)
 {
 	std::istringstream iss(buffer);
-
 	std::string token;
+	const std::string invalidChars = " ,";
 
 	iss >> token;
 	if (!token.empty() && token [0] == '#')
@@ -13,6 +13,11 @@ void Server::ft_join(std::string buffer, int fd)
 	{
 		sendResponse("Invalid name Channel", fd);
 		 return;
+	}
+	if (token.find_first_of(invalidChars) != std::string::npos || (token.length() > 1 && token.substr(0,2)== "^G") || token.find(' '))
+	{
+		sendResponse("Invalid character in the channel's name", fd);
+		return ;
 	}
 	if (Channel_already_created(token))
 	{
