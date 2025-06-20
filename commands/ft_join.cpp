@@ -24,7 +24,9 @@ void Server::ft_join(std::string buffer, int fd)
 	{
 		Channel *channel  = getChannel(token);
 		channel->addNewMember(fd);
-		std::cout << "already created!" << std::endl; 
+		sendfillmessage(CMD_JOIN, channel->getChannelName(), fd);
+		sendfillmessage(RPL_NAMREPLY, channel->getChannelName(), fd);
+		sendfillmessage(RPL_ENDOFNAMES, channel->getChannelName(), fd);
 		return;
 	}
 	Channel channel(token, fd);

@@ -24,5 +24,5 @@ class Channel
 		void eraseClientChannel(int fd);
 		bool checkIfAdmin(int fd);
 
-		std::vector<std::pair<int, bool> > getClients_pairs();
+		std::vector<std::pair<int, bool> > &getClients_pairs();
 };

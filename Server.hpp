@@ -66,6 +66,7 @@ class Server
 		bool iequalscommands(std::string toke, std::string &buffer);
 
 		bool Channel_already_created(std::string name);
+		void eraseClientFromChannels(int fd, std::string quitMessage);
 
 		Channel *getChannel(std::string name);
 

@@ -1,4 +1,6 @@
 #include "Channel.hpp"
+#include "irc_messages.hpp"
+#include "Server.hpp"
 
 Channel::Channel(std::string channelName, int fd)
 {
@@ -10,6 +12,7 @@ Channel::Channel(std::string channelName, int fd)
 
 void Channel::addNewMember(int fd)
 {
+	Server server;
 	this->clients_pairs.push_back(std::make_pair(fd, false));
 }
 
@@ -28,6 +31,8 @@ void Channel::setChannelName(std::string channelName)
 
 bool Channel::checkClientExist(int fd)
 {
+	if (!clients_pairs.empty())
+		return false;
 	for (size_t i = 0; i < clients_pairs.size(); i++) 
 	{
         if (clients_pairs[i].first == fd)
@@ -38,9 +43,16 @@ bool Channel::checkClientExist(int fd)
 
 void Channel::eraseClientChannel(int fd)
 {
-	for (std::vector<std::pair<int, bool> >::iterator it = clients_pairs.begin(); it != clients_pairs.end(); ++it) {
+    std::vector<std::pair<int, bool> >::iterator it;
+    
+    if (clients_pairs.empty()) {
+        return;
+    }
+    for (it = clients_pairs.begin(); it != clients_pairs.end(); ) {
         if (it->first == fd) {
-            clients_pairs.erase(it);
+            it = clients_pairs.erase(it);
+        } else {
+            ++it;
         }
     }
 }
@@ -60,7 +72,7 @@ bool Channel::checkIfAdmin(int fd)
     return false;
 }
 
-std::vector<std::pair<int, bool> > Channel::getClients_pairs()
+std::vector<std::pair<int, bool> > &Channel::getClients_pairs()
 {
 	return clients_pairs;
 }

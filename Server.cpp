@@ -274,20 +274,61 @@ void Server::proccesCommand(std::string buffer, int fd)
 		sendResponse("Command not found: " + token, fd);
 }
 
+void Server::eraseClientFromChannels(int fd, std::string quitMessage)
+{
+	Client *client = getClientByFd(fd);
+	std::string message;
+	message = ":" + client->getNickName() +"!" + client->getUserName() + "@" + this->name + " QUIT " + quitMessage;
 
+	for (std::vector<Channel>::iterator it = channels_vector.begin(); it != channels_vector.end(); ++it) 
+    {
+		if (it->checkClientExist(fd) && it->getClients_pairs().size() <= 1)
+		{
+			it->eraseClientChannel(fd);
+			removeChannel(it->getChannelName());
+		}
+		else if (it->checkClientExist(fd))
+		{
+			channelSendResponse(it->getChannelName(), message, fd);
+			it->eraseClientChannel(fd);
+		}
+    }
+}
 
 void Server::recieved_data(int fd)
 {
 	char buffer[1024];
 	ssize_t bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	std::string token;
+	std::string quitMessage(buffer);
 	std::istringstream iss(buffer);
 	iss >> token;
 	if (bytes_read == -1)
 		throw_error("Failed to recieved data!");
 	if (bytes_read == 0 || token == "QUIT" || token == "quit")
 	{
-		//si cliente esta en el canal lo tenemops que eliminar del canal
+		/* if (bytes_read == 0)
+		{
+			std::cout << "Client has been desconnected " << fd << std::endl;
+			close_client(fd);
+			return ;
+		} */
+		if (bytes_read == 0)
+			quitMessage = ": Says goodbye";
+		else
+		{
+			if (strlen(buffer) > token.length())
+				quitMessage = quitMessage.substr(token.length());
+			size_t firstChar = quitMessage.find_first_not_of(" \t");
+			if (firstChar != std::string::npos)
+				quitMessage = quitMessage.substr(firstChar);
+			if (quitMessage[0] != ':')
+			{
+				sendResponse("Invalid quit message", fd);
+				return;
+			}
+		}
+		eraseClientFromChannels(fd, quitMessage);
 		std::cout << "Client has been desconnected " << fd << std::endl;
 		close_client(fd);
 		return ;
@@ -303,7 +344,6 @@ void Server::recieved_data(int fd)
 			std::string line;
 			while (getline(iss, line))
 				proccesCommand(line, fd);
-
 			_buffer.clear();
 		}
 		else

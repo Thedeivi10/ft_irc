@@ -13,13 +13,12 @@ enum COMMAND {
     CMD_NOTICE,      // :<nick>!<user>@<host> NOTICE <target> :<message>
     CMD_PART,        // :<nick>!<user>@<host> PART #channel [:part message]
     CMD_MODE,        // :<nick>!<user>@<host> MODE #channel +mode [params]
-    CMD_TOPIC,       // :<nick>!<user>@<host> TOPIC #channel :<new topic>
+    CMD_TOPIC,       // :<nick>!<user>@<host> TOPIC #channel :<new topic> 
     CMD_INVITE,      // :<nick>!<user>@<host> INVITE <otherNick> :#channel
     CMD_LIST,        // (client sends LIST; you respond with 322/323)
     CMD_KICK,        // :<nick>!<user>@<host> KICK #channel <nick> :<reason>
     CMD_KILL         // :<op>!<user>@<host> KILL <target> :<reason>
 };
-
 
 enum RPL {
     // ─────────── REGISTRATION / CONNECTION ───────────
