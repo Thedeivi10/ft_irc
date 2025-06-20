@@ -76,7 +76,7 @@ class Server
 
 		void removeChannel(std::string channelName);
 
-		std::string fillmessage(int mesage_type, std::string channelName, int fd);
+		void sendfillmessage(int mesage_type, std::string channelName, int fd);
 
 
 		//COMMANDS

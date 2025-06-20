@@ -10,7 +10,7 @@ class Channel
 	private:
 		std::string channelName;
 		std::vector<std::pair<int , bool> > clients_pairs;
-		
+		std::string topic;
 
 	public:
 		Channel(std::string channelName, int fd);

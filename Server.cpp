@@ -285,7 +285,7 @@ void Server::recieved_data(int fd)
 	iss >> token;
 	if (bytes_read == -1)
 		throw_error("Failed to recieved data!");
-	if (bytes_read == 0 || token == "QUIT")
+	if (bytes_read == 0 || token == "QUIT" || token == "quit")
 	{
 		//si cliente esta en el canal lo tenemops que eliminar del canal
 		std::cout << "Client has been desconnected " << fd << std::endl;

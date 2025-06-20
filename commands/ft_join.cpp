@@ -31,11 +31,8 @@ void Server::ft_join(std::string buffer, int fd)
 	channels_vector.push_back(channel);
 	Client *client = getClientByFd(fd);
 	std::cout << client->getUserName();
-	std::string joinMsg = fillmessage(JOIN_START, channel.getChannelName(), fd);
-	sendResponse(joinMsg, fd);
-	std::string namreply = fillmessage(JOIN_353, channel.getChannelName(), fd);
-	sendResponse(namreply,fd);
-	std::string endofnames = fillmessage(JOIN_366, channel.getChannelName(), fd);
-	sendResponse(endofnames, fd);
+	sendfillmessage(CMD_JOIN, channel.getChannelName(), fd);
+	sendfillmessage(RPL_NAMREPLY, channel.getChannelName(), fd);
+	sendfillmessage(RPL_ENDOFNAMES, channel.getChannelName(), fd);
 	return;
 }

@@ -5,6 +5,7 @@ Channel::Channel(std::string channelName, int fd)
 	this->channelName = channelName;
 	clients_pairs.clear();
 	this->clients_pairs.push_back(std::make_pair(fd, true));
+	this->topic = "";
 }
 
 void Channel::addNewMember(int fd)

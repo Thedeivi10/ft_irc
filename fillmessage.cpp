@@ -1,37 +1,38 @@
 #include "Server.hpp"
+#include "irc_messages.hpp"
 
 
-std::string Server::fillmessage(int mesage_type, std::string channelName, int fd)
+void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 {
 	Client *client = getClientByFd(fd);
 
 	if (!client)
-        return "";
+        return ;
 
 	Channel *channel = NULL;
 	if (channelName != "")
 	{
 		channel = getChannel(channelName);
 		if (!channel)
-			return "";
+			return ;
 	}
 	std::string joinMsg = "";
 
 	switch (mesage_type)
 	{
-		case (JOIN_START):
+		case (CMD_JOIN):
 			joinMsg = ":" + client->getNickName() +"!" + client->getUserName() + "@localhost JOIN #" + channel->getChannelName() +  "\r\n";
 			break;
-		case (JOIN_353):
+		case (RPL_NAMREPLY):
 			joinMsg = ":" + this->name + " 353 " + client->getNickName() + " = #" + channel->getChannelName() + " :@" + client->getNickName() + "\r\n";
 			break;
-		case (JOIN_366):
+		case (RPL_ENDOFNAMES):
 			joinMsg = ":" + this->name + " 366 " + client->getNickName() + " #" + channel->getChannelName() + " :End of NAMES list" + "\r\n";
 			break;
 		default:
 			break;
 	}
-	return joinMsg;
+	sendResponse(joinMsg, fd);
 }
 
 
