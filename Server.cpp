@@ -280,9 +280,12 @@ void Server::recieved_data(int fd)
 {
 	char buffer[1024];
 	ssize_t bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	std::string token;
+	std::istringstream iss(buffer);
+	iss >> token;
 	if (bytes_read == -1)
 		throw_error("Failed to recieved data!");
-	if (bytes_read == 0)
+	if (bytes_read == 0 || token == "QUIT")
 	{
 		//si cliente esta en el canal lo tenemops que eliminar del canal
 		std::cout << "Client has been desconnected " << fd << std::endl;
