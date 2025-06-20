@@ -11,7 +11,8 @@ class Channel
 		std::string channelName;
 		std::vector<std::pair<int , bool> > clients_pairs;
 		std::string topic;
-
+		bool hasTopic;
+		
 	public:
 		Channel(std::string channelName, int fd);
 		~Channel();
@@ -23,6 +24,10 @@ class Channel
 		bool checkClientExist(int fd);
 		void eraseClientChannel(int fd);
 		bool checkIfAdmin(int fd);
+		void setTopic(const std::string& topic);
+		std::string getTopic() const;
+		bool hasTopic() const;
+
 
 		std::vector<std::pair<int, bool> > getClients_pairs();
 };

@@ -44,6 +44,7 @@ enum RPL {
     RPL_NAMREPLY = 353,        // :<server> 353 <nick> = #channel :@nick1 nick2
     RPL_ENDOFNAMES = 366,      // :<server> 366 <nick> #channel :End of NAMES list
     RPL_INVITING = 341,        // :<server> 341 <nick> <target> #channel
+    RPL_NOT_OPERATOR = 482      // :<server> 482 <nick> <canal> :You're not channel operator
 
     ERR_NOSUCHCHANNEL = 403,     // :<server> 403 <nick> #channel :No such channel
     ERR_CANNOTSENDTOCHAN = 404,  // :<server> 404 <nick> #channel :Cannot send to channel

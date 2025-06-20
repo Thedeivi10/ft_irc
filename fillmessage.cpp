@@ -23,11 +23,17 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 		case (CMD_JOIN):
 			joinMsg = ":" + client->getNickName() +"!" + client->getUserName() + "@localhost JOIN #" + channel->getChannelName() +  "\r\n";
 			break;
+		case (CMD_TOPIC):
+			joinMsg = ":" + client->getNickName() +"!" + client->getUserName() + "@localhost TOPIC #" + channel->getChannelName() + NEW TOPIC HERE +  "\r\n";
+			break;
 		case (RPL_NAMREPLY):
 			joinMsg = ":" + this->name + " 353 " + client->getNickName() + " = #" + channel->getChannelName() + " :@" + client->getNickName() + "\r\n";
 			break;
 		case (RPL_ENDOFNAMES):
 			joinMsg = ":" + this->name + " 366 " + client->getNickName() + " #" + channel->getChannelName() + " :End of NAMES list" + "\r\n";
+			break;
+		case (RPL_NOT_OPERATOR):
+			joinMsg = ":" + client->Server() +"482" + client->getNickName() + channelName + channel->getChannelName() + ":You're not channel operator" +  "\r\n";
 			break;
 		default:
 			break;

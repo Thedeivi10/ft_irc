@@ -65,3 +65,15 @@ std::vector<std::pair<int, bool> > Channel::getClients_pairs()
 	return clients_pairs;
 }
 
+void Channel::setTopic(const std::string& topic) {
+	topic = topic;
+	hasTopic = true;
+}
+
+std::string Channel::getTopic() const {
+	return topic;
+}
+
+bool Channel::hasTopic() const {
+	return hasTopic;
+}
