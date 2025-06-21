@@ -36,6 +36,7 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 			joinMsg = ":" + this->name + " 004 " + client->getNickName() +
               " " + this->name + " ft_irc-1.0" + " o" + " itkl" + "\r\n";
 			break;
+		/*
 		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 315 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
 			break;
@@ -129,6 +130,7 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 696 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
 			break;
+		*/
 		default:
 			break;
 	}

@@ -28,13 +28,30 @@ void Server::ft_join(std::string buffer, int fd)
 			sendResponse("You are already a member of this channel!", fd);
 			return ;
 		}
+		if (channel->getInviteOnly())
+		{
+			if (!channel->checkIfInvite(fd))
+			{
+				sendResponse("You are not invited! sorry buddy!", fd);
+				return ;
+			}
+		}
+		if (channel->getPassBoolean())
+		{
+			iss >> token;
+			if (channel->checkPasswordChannel(token))
+			{
+				sendResponse("You are not invited! sorry buddy!", fd);
+				return ;
+			}
+		}
 		channel->addNewMember(fd);
 		sendfillmessage(CMD_JOIN, channel->getChannelName(), fd);
 		sendfillmessage(RPL_NAMREPLY, channel->getChannelName(), fd);
 		sendfillmessage(RPL_ENDOFNAMES, channel->getChannelName(), fd);
 		return;
 	}
-	Channel channel(token, fd);
+	Channel channel(token, fd, &clients_vector);
 	channels_vector.push_back(channel);
 	Client *client = getClientByFd(fd);
 	std::cout << client->getUserName();
