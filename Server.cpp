@@ -15,6 +15,7 @@ Server::Server()
 	this->port = 0;
 	this->password = "";
 	this->name = "localhost.irc";
+	this->channels_vector.clear();
 }
 
 Server::~Server()
@@ -300,6 +301,7 @@ void Server::eraseClientFromChannels(int fd, std::string quitMessage)
 		{
 			it->eraseClientChannel(fd);
 			removeChannel(it->getChannelName());
+			it--;
 		}
 		else if (it->checkClientExist(fd))
 		{
@@ -314,6 +316,8 @@ void Server::recieved_data(int fd)
 	char buffer[1024];
 	ssize_t bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	std::string token;
+
+	buffer[bytes_read] = '\0';
 	std::string quitMessage(buffer);
 	std::istringstream iss(buffer);
 	iss >> token;
@@ -328,7 +332,10 @@ void Server::recieved_data(int fd)
 			return ;
 		} */
 		if (bytes_read == 0)
+		{
+			std::cout << "signal!\n";
 			quitMessage = ": Says goodbye";
+		}
 		else
 		{
 			if (strlen(buffer) > token.length())
@@ -349,7 +356,6 @@ void Server::recieved_data(int fd)
 	}
 	else
 	{
-		buffer[bytes_read] = '\0';
 		this->_buffer += buffer;
 
 		if (strstr(_buffer.c_str(), "\r\n") || strchr(_buffer.c_str(), '\n'))
@@ -365,6 +371,7 @@ void Server::recieved_data(int fd)
 			setbuffer(this->_buffer);
 		}
 	}
+	buffer[0] = '\0';
 }
 
 void Server::launchServer()
@@ -386,7 +393,6 @@ void Server::launchServer()
 					recieved_data(poll_fds[i].fd);
 			}
 		}
-
 	}
 }
 
@@ -433,6 +439,8 @@ std::string Server::getbuffer()
 
 bool Server::Channel_already_created(std::string name)
 {
+	if (channels_vector.empty())
+		return false;
 	for (size_t i = 0; i < channels_vector.size(); i++)
 	{
 		if (channels_vector[i].getChannelName() == name)

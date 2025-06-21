@@ -21,6 +21,8 @@ void Server::ft_kick(std::string buffer, int fd)
 	{
 		Channel *channel = getChannel(token);
 
+		if (!channel)
+			return ;
 		if (!channel->checkIfAdmin(fd))
 		{
 			sendResponse("You are not a admin to kick someone!", fd);
@@ -28,9 +30,7 @@ void Server::ft_kick(std::string buffer, int fd)
 		}
 
 		Client *client = getClientByNick(nick);
-
-		if (!channel)
-			return ;
+		
 		if (!client || !channel->checkClientExist(fd))
 		{
 			response = nick + " is not a member of " + token;

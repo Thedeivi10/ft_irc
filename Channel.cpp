@@ -31,7 +31,7 @@ void Channel::setChannelName(std::string channelName)
 
 bool Channel::checkClientExist(int fd)
 {
-	if (!clients_pairs.empty())
+	if (clients_pairs.empty())
 		return false;
 	for (size_t i = 0; i < clients_pairs.size(); i++) 
 	{
@@ -45,15 +45,15 @@ void Channel::eraseClientChannel(int fd)
 {
     std::vector<std::pair<int, bool> >::iterator it;
     
-    if (clients_pairs.empty()) {
+    if (clients_pairs.empty())
         return;
-    }
-    for (it = clients_pairs.begin(); it != clients_pairs.end(); ) {
-        if (it->first == fd) {
+    for (it = clients_pairs.begin(); it != clients_pairs.end(); it++) 
+	{
+        if (it->first == fd) 
+		{
             it = clients_pairs.erase(it);
-        } else {
-            ++it;
-        }
+			it--;
+        } 
     }
 }
 
