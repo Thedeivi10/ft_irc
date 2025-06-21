@@ -157,12 +157,21 @@ void Server::checkNick(std::string buffer, std::string token, int fd)
 		sendResponse("Invalid nick!", fd);
 		return ;
 	}
-	client->setNickName(nick);
-	client->setLogNick(true);
-	std::string ress = ": 001 " + nick + " : s'up buddy!" + "\r";
-	sendResponse(ress, fd);
-	if (!client->getRegistered())
+	if (!client->getLogNick())
+	{
+		client->setNickName(nick);
+		client->setLogNick(true);
 		sendResponse("Please put your User\r", fd);
+	}
+	else if (client->getRegistered())
+	{
+		std::string message =":" + client->getNickName() + "!" + client->getUserName() + "@" + this->name + " NICK :" + nick;
+		client->setNickName(nick);
+	}
+	else
+	{
+		sendResponse("Before change your nickname, please put your user", fd);
+	}
 	return ;
 }
 
@@ -184,7 +193,12 @@ void Server::checkUser(std::string buffer, std::string token, int fd)
 	iss >> cleanUser;
 	client->setUserName(cleanUser);
 	if (!client->getRegistered())
-		sendResponse("Welcome to our irc\r", fd);
+	{
+		sendfillmessage(RPL_WELCOME, "", fd);
+		sendfillmessage(RPL_YOURHOST, "" , fd);
+		sendfillmessage(RPL_CREATED, "", fd);
+		sendfillmessage(RPL_MYINFO, "", fd);
+	}
 	client->setRegistered(true);
 	return ;
 }

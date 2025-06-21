@@ -29,14 +29,21 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 002 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
 			break;
-		/* case (RPL_YOURHOST):
-			joinMsg = ":" + this->name + " 003 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
+		case (RPL_CREATED):
+			joinMsg = ":" + this->name + " 003 " + client->getNickName() + " :This server was created ..." + "\r\n";
+			break;
+		case (RPL_MYINFO):
+			joinMsg = ":" + this->name + " 004 " + client->getNickName() +
+              " " + this->name + " ft_irc-1.0" + " o" + " itkl" + "\r\n";
 			break;
 		case (RPL_YOURHOST):
-			joinMsg = ":" + this->name + " 004 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
+			joinMsg = ":" + this->name + " 315 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
 			break;
 		case (RPL_YOURHOST):
-			joinMsg = ":" + this->name + " 005 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
+			joinMsg = ":" + this->name + " 322 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
+			break;
+		case (RPL_YOURHOST):
+			joinMsg = ":" + this->name + " 323 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
 			break;
 		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 324 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
@@ -46,8 +53,8 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 			break;
 		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 331 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
-			break; */
-		/* case (RPL_YOURHOST):
+			break;
+		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 332 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
 			break;
 		case (RPL_YOURHOST):
@@ -58,14 +65,14 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 			break;
 		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 352 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
-			break; */
+			break;
 		case (RPL_NAMREPLY):
 			joinMsg = ":" + this->name + " 353 " + client->getNickName() + " = #" + channel->getChannelName() + " :@" + client->getNickName() + "\r\n";
 			break;
 		case (RPL_ENDOFNAMES):
 			joinMsg = ":" + this->name + " 366 " + client->getNickName() + " #" + channel->getChannelName() + " :End of NAMES list" + "\r\n";
 			break;
-		/* case (RPL_YOURHOST):
+		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 401 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
 			break;
 		case (RPL_YOURHOST):
@@ -121,7 +128,7 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 			break;
 		case (RPL_YOURHOST):
 			joinMsg = ":" + this->name + " 696 " + client->getNickName() + " :Your host is localhost.irc" + "\r\n";
-			break; */
+			break;
 		default:
 			break;
 	}
