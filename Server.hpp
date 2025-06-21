@@ -79,6 +79,19 @@ class Server
 
 		void sendfillmessage(int mesage_type, std::string channelName, int fd);
 
+		bool checkModeOptions(std::string &token, std::istringstream &iss, std::vector<std::pair<std::string, std::string> > &mode_options, int fd);
+
+		void addModeArgument(std::string &token, std::vector<std::pair<std::string, std::string> > &mode_options, std::istringstream &iss);
+
+		void executeMode(std::vector<std::pair<std::string, std::string> > &mode_options, std::string channelName, int fd);
+
+		//MODE METHODS
+
+		void oMode(std::string mode, std::string arg, std::string channelName, int fd);
+		void iMode(std::string mode, std::string channelName, int fd);
+		void kMode(std::string mode, std::string arg, std::string channelName, int fd);
+		void lMode(std::string mode, std::string arg, std::string channelName, int fd);
+		void tMode(std::string mode, std::string channelName, int fd);
 
 		//COMMANDS
 		void ft_invite(std::string buffer, int fd);

@@ -23,6 +23,11 @@ void Server::ft_join(std::string buffer, int fd)
 	if (Channel_already_created(token))
 	{
 		Channel *channel  = getChannel(token);
+		if (channel->checkClientExist(fd))
+		{
+			sendResponse("You are already a member of this channel!", fd);
+			return ;
+		}
 		channel->addNewMember(fd);
 		sendfillmessage(CMD_JOIN, channel->getChannelName(), fd);
 		sendfillmessage(RPL_NAMREPLY, channel->getChannelName(), fd);
