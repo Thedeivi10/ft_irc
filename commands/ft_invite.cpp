@@ -29,7 +29,7 @@ void Server::ft_invite(std::string buffer, int fd)
 		return ;
 	}
 	channel->inviteMember(client->getClifd());
-	std::string response = "Nick: " + client->getNickName() + " has been to the channel: " + token;
+	std::string response = "Nick: " + client->getNickName() + " has been invited to the channel: " + token;
 	sendResponse(response, fd);
 	return ;
 }
