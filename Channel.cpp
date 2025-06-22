@@ -90,7 +90,7 @@ std::vector<std::pair<int, bool> > &Channel::getClients_pairs()
 
 void Channel::setPassBoolean(bool pass)
 {
-	this->pass_string = pass;
+	this->pass_boolean = pass;
 }
 
 void Channel::setInviteOnly(bool invite_only)
