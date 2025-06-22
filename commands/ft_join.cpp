@@ -45,6 +45,14 @@ void Server::ft_join(std::string buffer, int fd)
 				return ;
 			}
 		}
+		if (channel->getLimitBolean())
+		{
+			if (channel->getClients_pairs().size() + 1 >= static_cast<size_t>(channel->getLimit()))
+			{
+				sendResponse("The channel is full cannot accept more clients", fd);
+				return ;
+			}
+		}
 		channel->addNewMember(fd);
 		sendfillmessage(CMD_JOIN, channel->getChannelName(), fd);
 		Client* joiningClient = getClientByFd(fd);

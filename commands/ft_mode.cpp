@@ -44,9 +44,25 @@ void Server::executeMode(std::vector<std::pair<std::string, std::string> > &mode
 
 void Server::oMode(std::string mode, std::string arg, std::string channelName, int fd)
 {
+	std::string response;
 	Channel *channel = getChannel(channelName);
 	Client *client = getClientByNick(arg);
 	(void)fd;
+
+	if (arg == "")
+	{
+		response = ":server 461 <nick> MODE :Not enough parameters";
+		sendResponse(response, fd);
+		return;
+	}
+	if (!client)
+	{
+		response = ":server 401 <requester_nick> <targetNick> :No such nick/channel";
+		sendResponse(response, fd);
+		return ;
+	}
+	if (!channel)
+		return ;
 
 	for (size_t i = 0; i < channel->getClients_pairs().size(); i++) 
 	{
