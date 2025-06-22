@@ -10,11 +10,12 @@ Client::Client(int cli_fd, std::string ip, int port)
 	this->registered = false;
 	this->user_name = "";
 	this->nick_name = "";
-	this->admin = false;
 }
 
 Client::~Client()
-{}
+{
+/* 	close(this->cli_fd); */
+}
 
 void Client::setlogIn(bool logIn)
 {

@@ -11,6 +11,9 @@ Channel::Channel(std::string channelName, int fd, std::vector <Client> *clients_
 	this->topic = "";
 	this->pass_boolean = false;
 	this->invite_only = false;
+	this->topic_bolean = true;
+	this->limit_bolean = false;
+	this->limit = -1;
 }
 
 const std::vector<Client>& Channel::getClientsVector() const
@@ -95,6 +98,21 @@ void Channel::setInviteOnly(bool invite_only)
 	this->invite_only = invite_only;
 }
 
+void Channel::setTopicBolean(bool topic_bolean)
+{
+	this->topic_bolean = topic_bolean;
+}
+
+void Channel::setLimitBolean(bool limit_bolean)
+{
+	this->limit_bolean = limit_bolean;
+}
+
+void Channel::setLimit(int limit)
+{
+	this->limit = limit;
+}
+
 void Channel::setPassString(std::string pass_string)
 {
 	this->pass_string = pass_string;
@@ -105,7 +123,26 @@ bool Channel::getPassBoolean()
 	return this->pass_boolean;
 }
 
-bool Channel::getInviteOnly()
+bool Channel::getTopicBolean()
+{
+	return this->topic_bolean;
+}
+
+std::string Channel::getTopic()
+{
+	return this->topic;
+}
+
+bool Channel::getLimitBolean()
+{
+	return this->limit_bolean;
+}
+int	Channel::getLimit()
+{
+	return this->limit;
+}
+
+bool 	Channel::getInviteOnly()
 {
 	return this->invite_only;
 }

@@ -2,7 +2,7 @@ CXX     := c++
 CXXFLAGS:= -Wall -Wextra -Werror -std=c++98
 
 # Executable name
-NAME    := irc_server
+NAME    := ircserv
 
 # Source files
 SRCS    := main.cpp Server.cpp Client.cpp Helpers.cpp Channel.cpp fillmessage.cpp

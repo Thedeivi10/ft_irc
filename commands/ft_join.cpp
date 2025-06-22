@@ -47,14 +47,18 @@ void Server::ft_join(std::string buffer, int fd)
 		}
 		channel->addNewMember(fd);
 		sendfillmessage(CMD_JOIN, channel->getChannelName(), fd);
+		Client* joiningClient = getClientByFd(fd);
+		std::string joinMsg = ":" + joiningClient->getNickName() + "!" + joiningClient->getUserName() + "@localhost JOIN #" + channel->getChannelName() + "\r\n";
+		std::vector<std::pair<int, bool> >& clients_pairs = channel->getClients_pairs();
+		for (size_t i = 0; i < clients_pairs.size(); i++) {
+			sendResponse(joinMsg, clients_pairs[i].first);
+		}
 		sendfillmessage(RPL_NAMREPLY, channel->getChannelName(), fd);
 		sendfillmessage(RPL_ENDOFNAMES, channel->getChannelName(), fd);
 		return;
 	}
 	Channel channel(token, fd, &clients_vector);
 	channels_vector.push_back(channel);
-	Client *client = getClientByFd(fd);
-	std::cout << client->getUserName();
 	sendfillmessage(CMD_JOIN, channel.getChannelName(), fd);
 	sendfillmessage(RPL_NAMREPLY, channel.getChannelName(), fd);
 	sendfillmessage(RPL_ENDOFNAMES, channel.getChannelName(), fd);

@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <string>
+#include <sstream>
 #include <sys/socket.h>
 #include <vector>
 #include <poll.h>
@@ -67,6 +68,8 @@ class Server
 
 		bool Channel_already_created(std::string name);
 		void eraseClientFromChannels(int fd, std::string quitMessage);
+		std::string joinNameReply(std::string channelName);
+		std::string channelModeis(std::string channelName);
 
 		Channel *getChannel(std::string name);
 

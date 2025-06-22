@@ -15,6 +15,9 @@ class Channel
 		bool pass_boolean;
 		std::string pass_string;
 		bool invite_only;
+		bool topic_bolean;
+		bool limit_bolean;
+		int limit;
 		std::pair<int , bool> max_members;
 		std::vector<std::pair<int, bool> > members_invite;
 		
@@ -42,11 +45,22 @@ class Channel
 
 		void setPassString(std::string pass_string);
 
+		void setLimitBolean(bool limit_bolean);
+		void setLimit(int limit);
+		
+		void setTopicBolean(bool topic_bolean);
+
+
 		bool getPassBoolean();
 
 
 		bool getInviteOnly();
 
+		bool getTopicBolean();
+		std::string getTopic();
+
+		bool getLimitBolean();
+		int	getLimit();
 		std::string getPassString();
 
 		std::vector<std::pair<int, bool> > getMemberInvite();

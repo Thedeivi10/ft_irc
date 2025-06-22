@@ -41,89 +41,73 @@ void Server::executeMode(std::vector<std::pair<std::string, std::string> > &mode
 	}
 }
 
+
 void Server::oMode(std::string mode, std::string arg, std::string channelName, int fd)
 {
-	std::string res;
-	(void)channelName;
+	Channel *channel = getChannel(channelName);
+	Client *client = getClientByNick(arg);
+	(void)fd;
 
-	if (mode == "+o")
+	for (size_t i = 0; i < channel->getClients_pairs().size(); i++) 
 	{
-		res = mode + " " + arg;
-		sendResponse(res, fd);
-	}
-	else
-	{
-		res = mode + " " + arg;
-		sendResponse(res, fd);
-	}
+        if (channel->getClients_pairs()[i].first == client->getClifd())
+		{
+			if (mode == "+o")
+				channel->getClients_pairs()[i].second = true;
+			else if (mode == "-o")
+				channel->getClients_pairs()[i].second = false;
+		}
+    }
 }
 
 void Server::iMode(std::string mode, std::string channelName, int fd)
 {
-	std::string res;
-	(void)channelName;
-
+	Channel *channel = getChannel(channelName);
+	(void)fd;
 	if (mode == "+i")
-	{
-		res = mode;
-		sendResponse(res, fd);
-	}
+		channel->setInviteOnly(true);
 	else
-	{
-		res = mode;
-		sendResponse(res, fd);
-	}
+		channel->setInviteOnly(false);
 }
 
 void Server::kMode(std::string mode, std::string arg, std::string channelName, int fd)
 {
-	std::string res;
-	(void)channelName;
-
+	Channel *channel = getChannel(channelName);
+	(void)fd;
 	if (mode == "+k")
 	{
-		res = mode + " " + arg;
-		sendResponse(res, fd);
+		channel->setPassBoolean(true);
+		channel->setPassString(arg);
 	}
 	else
-	{
-		res = mode + " " + arg;
-		sendResponse(res, fd);
-	}
+		channel->setPassBoolean(false);
 }
 
 void Server::lMode(std::string mode, std::string arg, std::string channelName, int fd)
 {
-	std::string res;
-	(void)channelName;
-
+	Channel *channel = getChannel(channelName);
+	(void)fd;
 	if (mode == "+l")
 	{
-		res = mode + " " + arg;
-		sendResponse(res, fd);
+		channel->setLimitBolean(true);
+		std::istringstream iss(arg);
+		int limit;
+		iss >> limit;
+		channel->setLimit(limit);
 	}
 	else
-	{
-		res = mode;
-		sendResponse(res, fd);
-	}
+		channel->setLimitBolean(false);
+
 }
 
 void Server::tMode(std::string mode, std::string channelName, int fd)
 {
-	std::string res;
-	(void)channelName;
-
+	Channel *channel = getChannel(channelName);
+	(void)fd;
 	if (mode == "+t")
-	{
-		res = mode;
-		sendResponse(res, fd);
-	}
+		channel->setTopicBolean(true);
 	else
-	{
-		res = mode;
-		sendResponse(res, fd);
-	}
+		channel->setTopicBolean(false);
 }
 
 void Server::ft_mode(std::string buffer, int fd)
@@ -145,6 +129,11 @@ void Server::ft_mode(std::string buffer, int fd)
 	}
 	if (Channel_already_created(channelName))
 	{
+		if (!(iss >> token))
+		{
+			sendfillmessage(RPL_CHANNELMODEIS, channelName, fd);
+			return;
+		}
 		if (!checkModeOptions(token, iss, mode_options, fd))
 		{
 			sendResponse("mode option not encounter!", fd);
@@ -164,7 +153,6 @@ bool Server::checkModeOptions(std::string &token, std::istringstream &iss, std::
 	std::string mode;
 	std::string sign;
 	
-	iss >> token;
 	if (token[0] != '+' && token[0] != '-')
 	{
 		return false;

@@ -333,7 +333,6 @@ void Server::recieved_data(int fd)
 		} */
 		if (bytes_read == 0)
 		{
-			std::cout << "signal!\n";
 			quitMessage = ": Says goodbye";
 		}
 		else
@@ -382,7 +381,6 @@ void Server::launchServer()
 		signal(SIGQUIT, Server::signal_handler);
 		if (poll(&poll_fds[0], poll_fds.size(), -1) == -1)
 			throw_error("Poll has failed!");
-
 		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
 			if (poll_fds[i].revents & POLLIN)
