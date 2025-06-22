@@ -102,14 +102,30 @@ void Server::kMode(std::string mode, std::string arg, std::string channelName, i
 void Server::lMode(std::string mode, std::string arg, std::string channelName, int fd)
 {
 	Channel *channel = getChannel(channelName);
-	(void)fd;
-	if (mode == "+l")
+
+	if (!channel)
+		return;
+
+	if (mode == "+l") 
 	{
+		if (arg.empty()) 
+		{
+			sendfillmessage(ERR_NEEDMOREPARAMS, channelName, fd);
+			return;
+		}
+
+		char* endptr = NULL;
+		errno = 0;
+		long limit = std::strtol(arg.c_str(), &endptr, 10);
+
+		if (errno == ERANGE || limit > INT_MAX || limit <= 0 || *endptr != '\0') 
+		{
+			sendfillmessage(ERR_INVALIDMODEPARAM, channelName, fd);  // 696
+			return;
+		}
+
 		channel->setLimitBolean(true);
-		std::istringstream iss(arg);
-		int limit;
-		iss >> limit;
-		channel->setLimit(limit);
+		channel->setLimit(static_cast<int>(limit));
 	}
 	else
 		channel->setLimitBolean(false);

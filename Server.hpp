@@ -1,5 +1,6 @@
 #pragma once 
 
+#include <climits>
 #include <string>
 #include <sstream>
 #include <sys/socket.h>
