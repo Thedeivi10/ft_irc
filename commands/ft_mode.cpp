@@ -51,8 +51,7 @@ void Server::oMode(std::string mode, std::string arg, std::string channelName, i
 
 	if (arg == "")
 	{
-		response = ":server 461 <nick> MODE :Not enough parameters";
-		sendResponse(response, fd);
+		sendfillmessage(ERR_NEEDMOREPARAMS, channelName, fd);
 		return;
 	}
 	if (!client)
@@ -89,9 +88,24 @@ void Server::iMode(std::string mode, std::string channelName, int fd)
 void Server::kMode(std::string mode, std::string arg, std::string channelName, int fd)
 {
 	Channel *channel = getChannel(channelName);
-	(void)fd;
-	if (mode == "+k")
+	Client *client = getClientByFd(fd);
+
+	if (!channel || !client)
+		return;
+
+	if (!channel->checkIfAdmin(fd)) 
 	{
+		sendfillmessage(ERR_CHANOPRIVSNEEDED, channelName, fd);
+		return;
+	}
+
+	if (mode == "+k") 
+	{
+		if (arg.empty())
+		 {
+			sendfillmessage(ERR_NEEDMOREPARAMS, channelName, fd);
+			return;
+		}
 		channel->setPassBoolean(true);
 		channel->setPassString(arg);
 	}
