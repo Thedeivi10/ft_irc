@@ -9,23 +9,22 @@ void Server::ft_invite(std::string buffer, int fd)
 	Client *client = getClientByNick(token);
 	if (!client)
 	{
-		std::string response = "Nick: " + token + " doesn't exist!";
+		 Client *requester = getClientByFd(fd);
+		std::string response = ":" + this->name + " 401 " + (requester ? requester->getNickName() : "*") + " " + token + " :No such nick/channel\r\n";
 		sendResponse(response, fd);
 		return ;
 	}
 	iss >> token;
 	if (token[0] != '#')
 	{
-		std::string response = "Channel: " + token + " doesn't exist!";
-		sendResponse(response, fd);
+		sendfillmessage(ERR_NOSUCHCHANNEL, token, fd);
 		return ;
 	}
 	token.erase(0, 1);
 	Channel *channel = getChannel(token);
 	if (!channel)
 	{
-		std::string response = "Channel: " + token + " doesn't exist!";
-		sendResponse(response, fd);
+		sendfillmessage(ERR_NOSUCHCHANNEL, token, fd);
 		return ;
 	}
 	channel->inviteMember(client->getClifd());
