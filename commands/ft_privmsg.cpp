@@ -5,10 +5,12 @@ void Server::ft_privmsg(std::string buffer, int fd)
 	std::istringstream iss(buffer);
 	std::string token;
 	std::string destination;
-	std::string response;
+	std::string message;
 
 	iss >> token;
-
+	Client* sender = getClientByFd(fd);
+    if (!sender)
+		return;
 	if (token[0] == '#')
 	{
 		token.erase(0 ,1);
@@ -26,8 +28,9 @@ void Server::ft_privmsg(std::string buffer, int fd)
             return ;
 		}
 		buffer.erase(0, token.size() + 1);
-		response = generateResponse(trimLeading(buffer));
-		channelSendResponse(destination, response, fd);
+		message = generateResponse(trimLeading(buffer));
+		std::string response = ":" + sender->getNickName() + "!" + sender->getUserName() + "@localhost PRIVMSG #" + destination + " :" + message + "\r\n";
+        channelSendResponse(destination, response, fd);
 	}
 	else
 	{
@@ -39,9 +42,10 @@ void Server::ft_privmsg(std::string buffer, int fd)
 			sendfillmessage(ERR_NOSUCHNICK, destination, fd);
             return ;
 		}
-		response = buffer.erase(0, token.size());
-		sendResponse(response, client->getClifd());
-	
+		buffer.erase(0, token.size() + 1);
+		message = generateResponse(trimLeading(buffer));
+        std::string response = ":" + sender->getNickName() + "!" + sender->getUserName() + "@localhost PRIVMSG " + destination + " :" + message + "\r\n";
+        sendResponse(response, client->getClifd());
 	}
 
 	return ;

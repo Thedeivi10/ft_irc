@@ -30,8 +30,9 @@ void Server::ft_kick(std::string buffer, int fd)
 		}
 
 		Client *client = getClientByNick(nick);
-		
-		if (!client || !channel->checkClientExist(fd))
+		if (!client)
+			return ;
+		if (!channel->checkClientExist(client->getClifd()))
 		{
 			std::string requester = getClientByFd(fd)->getNickName();
             response = ":" + this->name + " 441 " + requester + " " + nick + " #" + channel->getChannelName() + " :They aren't on that channel\r\n";
