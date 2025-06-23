@@ -11,29 +11,28 @@ void Server::ft_join(std::string buffer, int fd)
     	token.erase(0, 1);
 	else
 	{
-		sendResponse("Invalid name Channel", fd);
-		 return;
+		sendfillmessage(ERR_NOSUCHCHANNEL, token, fd);
+    	return;
 	}
 	if (token.find_first_of(invalidChars) != std::string::npos || (token.length() > 1 && token.substr(0,2)== "^G")
 		|| token.find(' ') != std::string::npos)
 	{  
-		sendResponse("Invalid character in the channel's name", fd);
-		return ;
+		sendfillmessage(ERR_NOSUCHCHANNEL, token, fd);
+    	return ;
 	}
 	if (Channel_already_created(token))
 	{
 		Channel *channel  = getChannel(token);
 		if (channel->checkClientExist(fd))
 		{
-			sendResponse("You are already a member of this channel!", fd);
 			return ;
 		}
 		if (channel->getInviteOnly())
 		{
 			if (!channel->checkIfInvite(fd))
 			{
-				sendResponse("You are not invited! sorry buddy!", fd);
-				return ;
+				 sendfillmessage(ERR_INVITEONLYCHAN, channel->getChannelName(), fd);
+       			 return ;
 			}
 		}
 		if (channel->getPassBoolean())
@@ -41,16 +40,16 @@ void Server::ft_join(std::string buffer, int fd)
 			iss >> token;
 			if (channel->checkPasswordChannel(token))
 			{
-				sendResponse("You are not invited! sorry buddy!", fd);
-				return ;
+				sendfillmessage(ERR_BADCHANNELKEY, channel->getChannelName(), fd);
+        		return ;
 			}
 		}
 		if (channel->getLimitBolean())
 		{
 			if (channel->getClients_pairs().size() + 1 >= static_cast<size_t>(channel->getLimit()))
 			{
-				sendResponse("The channel is full cannot accept more clients", fd);
-				return ;
+				sendfillmessage(ERR_CHANNELISFULL, channel->getChannelName(), fd);
+        		return ;
 			}
 		}
 		channel->addNewMember(fd);
@@ -62,6 +61,10 @@ void Server::ft_join(std::string buffer, int fd)
 			sendResponse(joinMsg, clients_pairs[i].first);
 		}
 		sendfillmessage(RPL_NAMREPLY, channel->getChannelName(), fd);
+		if (!channel->getTopic().empty())
+    		sendfillmessage(RPL_TOPIC, channel->getChannelName(), fd);
+		else
+    		sendfillmessage(RPL_NOTOPIC, channel->getChannelName(), fd);
 		sendfillmessage(RPL_ENDOFNAMES, channel->getChannelName(), fd);
 		return;
 	}
@@ -69,6 +72,10 @@ void Server::ft_join(std::string buffer, int fd)
 	channels_vector.push_back(channel);
 	sendfillmessage(CMD_JOIN, channel.getChannelName(), fd);
 	sendfillmessage(RPL_NAMREPLY, channel.getChannelName(), fd);
+	if (!channel.getTopic().empty())
+    	sendfillmessage(RPL_TOPIC, channel.getChannelName(), fd);
+	else
+    	sendfillmessage(RPL_NOTOPIC, channel.getChannelName(), fd);
 	sendfillmessage(RPL_ENDOFNAMES, channel.getChannelName(), fd);
 	return;
 }

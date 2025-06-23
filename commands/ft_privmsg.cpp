@@ -17,13 +17,13 @@ void Server::ft_privmsg(std::string buffer, int fd)
 
 		if (!channel)
 		{
-			response = "Channel: " + destination + " doesn't exist!"; 
-			sendResponse(response, fd);
+			sendfillmessage(ERR_NOSUCHCHANNEL, destination, fd);
+            return;
 		}
 		if (!channel->checkClientExist(fd))
 		{
-			sendResponse("You are not a member of this channel to send a message!", fd);
-			return ;
+			sendfillmessage(ERR_CANNOTSENDTOCHAN, destination, fd);
+            return ;
 		}
 		buffer.erase(0, token.size() + 1);
 		response = generateResponse(trimLeading(buffer));
@@ -36,9 +36,8 @@ void Server::ft_privmsg(std::string buffer, int fd)
 
 		if (!client)
 		{
-			response = destination + " doesn't exist!";
-			sendResponse(response, fd);
-			return ;
+			sendfillmessage(ERR_NOSUCHNICK, destination, fd);
+            return ;
 		}
 		response = buffer.erase(0, token.size());
 		sendResponse(response, client->getClifd());

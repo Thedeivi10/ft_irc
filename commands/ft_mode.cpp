@@ -55,7 +55,8 @@ void Server::oMode(std::string mode, std::string arg, std::string channelName, i
 	}
 	if (!client)
 	{
-		response = ":server 401 <requester_nick> <targetNick> :No such nick/channel";
+		Client *requester = getClientByFd(fd);
+		response = ":" + this->name + " 401 " + (requester ? requester->getNickName() : "*") + " " + arg + " :No such nick/channel\r\n";
 		sendResponse(response, fd);
 		return ;
 	}
@@ -118,6 +119,12 @@ void Server::lMode(std::string mode, std::string arg, std::string channelName, i
 
 	if (!channel)
 		return;
+
+	if (!channel->checkIfAdmin(fd)) 
+	{
+		sendfillmessage(ERR_CHANOPRIVSNEEDED, channelName, fd);
+		return;
+	}
 
 	if (mode == "+l") 
 	{
@@ -203,8 +210,8 @@ void Server::ft_mode(std::string buffer, int fd)
 		channelName.erase(0, 1);
 	else
 	{
-		sendResponse("Channel not encounter!", fd);
-		return ;
+		sendfillmessage(ERR_NOSUCHCHANNEL, channelName, fd);
+    	return ;
 	}
 	if (Channel_already_created(channelName))
 	{
@@ -215,7 +222,7 @@ void Server::ft_mode(std::string buffer, int fd)
 		}
 		if (!checkModeOptions(token, iss, mode_options, fd))
 		{
-			sendResponse("mode option not encounter!", fd);
+			sendfillmessage(ERR_UNKNOWNMODE, token, fd);
 			return ;
 		}
 		addModeArgument(token, mode_options, iss);
@@ -223,7 +230,7 @@ void Server::ft_mode(std::string buffer, int fd)
 		sendModes(mode_options, channelName, fd);
 	}
 	else
-		sendResponse("Channel not encounter!", fd);
+		sendfillmessage(ERR_NOSUCHCHANNEL, channelName, fd);
 
 	return ;
 }
@@ -244,7 +251,7 @@ bool Server::checkModeOptions(std::string &token, std::istringstream &iss, std::
 		{
 			if (token[i] != 'o' && token[i] != 'i' && token[i] != 'k' &&  token[i] != 'l' && token[i] != 't')
 			{
-				sendResponse("INVALID MODE!", fd);
+				sendfillmessage(ERR_UNKNOWNMODE, std::string(1, token[i]), fd);
 			}
 			else
 			{

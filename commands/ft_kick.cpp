@@ -11,8 +11,8 @@ void Server::ft_kick(std::string buffer, int fd)
 		token.erase(0, 1);
 	else
 	{
-		sendResponse("Channel doesn't exist!", fd);
-		return;
+		sendfillmessage(ERR_NOSUCHCHANNEL, token, fd);
+        return;
 	}
 	std::string nick;
 	iss >> nick;
@@ -25,17 +25,18 @@ void Server::ft_kick(std::string buffer, int fd)
 			return ;
 		if (!channel->checkIfAdmin(fd))
 		{
-			sendResponse("You are not a admin to kick someone!", fd);
-			return ;
+			sendfillmessage(ERR_CHANOPRIVSNEEDED, channel->getChannelName(), fd);
+            return ;
 		}
 
 		Client *client = getClientByNick(nick);
 		
 		if (!client || !channel->checkClientExist(fd))
 		{
-			response = nick + " is not a member of " + token;
-			sendResponse(response, fd);
-			return ;
+			std::string requester = getClientByFd(fd)->getNickName();
+            response = ":" + this->name + " 441 " + requester + " " + nick + " #" + channel->getChannelName() + " :They aren't on that channel\r\n";
+            sendResponse(response, fd);
+            return ;
 		}
 		channel->eraseClientChannel(client->getClifd());
 		if (channel->getClients_pairs().size() <= 0)
@@ -49,7 +50,7 @@ void Server::ft_kick(std::string buffer, int fd)
 	}
 	else
 	{
-		sendResponse("Channel doesn't exist!", fd);
+		sendfillmessage(ERR_NOSUCHCHANNEL, token, fd);
 	}
 
 	return ;
