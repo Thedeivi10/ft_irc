@@ -143,6 +143,11 @@ void Server::lMode(std::string mode, std::string arg, std::string channelName, i
 			sendfillmessage(ERR_INVALIDMODEPARAM, channelName, fd);  // 696
 			return;
 		}
+		if (static_cast<int>(limit) > 100 || static_cast<size_t>(limit) < channel->getClients_pairs().size()) 
+		{
+			sendfillmessage(ERR_INVALIDMODEPARAM, channelName, fd);  // 696
+			return;
+		}
 
 		channel->setLimitBolean(true);
 		channel->setLimit(static_cast<int>(limit));

@@ -5,7 +5,8 @@ void Server::ft_kick(std::string buffer, int fd)
 	std::istringstream iss(buffer);
 	std::string token;
 	std::string response;
-
+	std::string reason;
+	Client *client_aux = getClientByFd(fd);
 	iss >> token;
 	if (token[0] == '#')
 		token.erase(0, 1);
@@ -16,7 +17,8 @@ void Server::ft_kick(std::string buffer, int fd)
 	}
 	std::string nick;
 	iss >> nick;
-
+	if (!(iss >> reason))
+		reason = "*";
 	if (Channel_already_created(token))
 	{
 		Channel *channel = getChannel(token);
@@ -46,6 +48,14 @@ void Server::ft_kick(std::string buffer, int fd)
 			sendResponse(response, fd);	
 			removeChannel(token);
 			return ;
+		}else
+		{
+			std::string modeMsg = ":" + client_aux->getNickName() + "!" + client_aux->getUserName() +"@localhost KICK #" + channel->getChannelName() + " " + nick + " :" + reason + "\r\n";
+			std::vector<std::pair<int, bool> >& members = channel->getClients_pairs();
+			for (size_t i = 0; i < members.size(); i++)
+			{
+				sendResponse(modeMsg, members[i].first);
+			}
 		}
 		
 	}
