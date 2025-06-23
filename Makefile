@@ -7,8 +7,8 @@ NAME    := ircserv
 # Source files
 SRCS    := main.cpp Server.cpp Client.cpp Helpers.cpp Channel.cpp fillmessage.cpp
 
-COMMANDS := ft_invite.cpp ft_kick.cpp ft_part.cpp ft_privmsg.cpp \
-            ft_join.cpp ft_list.cpp ft_mode.cpp ft_topic.cpp
+COMMANDS := ft_invite.cpp ft_kick.cpp ft_privmsg.cpp \
+            ft_join.cpp ft_mode.cpp ft_topic.cpp
 
 SRCS     += $(addprefix commands/, $(COMMANDS))
 
