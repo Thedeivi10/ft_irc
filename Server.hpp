@@ -71,6 +71,8 @@ class Server
 		void eraseClientFromChannels(int fd, std::string quitMessage);
 		std::string joinNameReply(std::string channelName);
 		std::string channelModeis(std::string channelName);
+		void addRandomAdmin(int fd, std::string channelName);
+		std::string generateResponse(std::string message);
 
 		Channel *getChannel(std::string name);
 
@@ -88,6 +90,8 @@ class Server
 		void addModeArgument(std::string &token, std::vector<std::pair<std::string, std::string> > &mode_options, std::istringstream &iss);
 
 		void executeMode(std::vector<std::pair<std::string, std::string> > &mode_options, std::string channelName, int fd);
+
+		void sendModes(std::vector<std::pair<std::string, std::string> > &mode_options, std::string channelName, int fd);
 
 		//MODE METHODS
 

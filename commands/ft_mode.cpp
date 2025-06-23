@@ -156,6 +156,40 @@ void Server::tMode(std::string mode, std::string channelName, int fd)
 		channel->setTopicBolean(false);
 }
 
+void Server::sendModes(std::vector<std::pair<std::string, std::string> > &mode_options, std::string channelName, int fd)
+{
+	Channel *channel = getChannel(channelName);
+	std::string modes;
+	std::string  c;
+	Client *client = getClientByFd(fd);
+
+	c = mode_options[0].first;
+	modes += c;
+	(void)channel;
+	for (size_t i = 1; i < mode_options.size(); i++)
+	{
+		if (c[0] != mode_options[i].first[0])
+		{
+			c = mode_options[i].first;
+			modes += " " + c;
+		}else
+			modes += mode_options[i].first[1];
+	}
+	for (size_t i = 0; i < mode_options.size(); i++)
+	{
+		if (!mode_options[i].second.empty())
+		{
+			modes += " " + mode_options[i].second;
+		}
+	}
+	std::string modeMsg = ":" + client->getNickName() + "!" + client->getUserName() +"@localhost MODE #" + channelName + " " + modes + "\r\n";
+	std::vector<std::pair<int, bool> >& members = channel->getClients_pairs();
+    for (size_t i = 0; i < members.size(); i++)
+    {
+        sendResponse(modeMsg, members[i].first);
+    }
+}
+
 void Server::ft_mode(std::string buffer, int fd)
 {
 	std::istringstream iss(buffer);
@@ -187,6 +221,7 @@ void Server::ft_mode(std::string buffer, int fd)
 		}
 		addModeArgument(token, mode_options, iss);
 		executeMode(mode_options, channelName, fd);
+		sendModes(mode_options, channelName, fd);
 	}
 	else
 		sendResponse("Channel not encounter!", fd);

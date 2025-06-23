@@ -113,20 +113,22 @@ void Server::checkLogIn(std::string buffer, std::string token, int fd)
 
 	if (client->getlogIn()) 
 	{
-		sendResponse("You have already logged in!", fd);
+		std::string error = ":" + this->name + " 462 " + client->getNickName() + " :You may not reregister\r\n";
+		sendResponse(error, fd);
 		return ;
 	}
 	std::string pass = getCommandArg(buffer, token);
+	std::string msg = ":" + this->name + " 464 " + client->getNickName() + " :Password incorrect\r\n";
 	if (pass.empty()) 
 	{
-		sendResponse("Invalid password!", fd);
+		sendResponse(msg, fd);
 		return ;
 	}
 	if (pass == this->password)
 		client->setlogIn(true);
 	else 
 	{
-		sendResponse("Invalid password!", fd);
+		sendResponse(msg, fd);
 		return ;
 	}
 	sendResponse("Please put your Nickname",fd);
@@ -152,10 +154,17 @@ void Server::checkNick(std::string buffer, std::string token, int fd)
 		throw_error("Error!");
 
 	std::string nick = getCommandArg(buffer, token);
+	std::string error = ":" + this->name + " 432 * " + nick + " :Erroneous nickname\r\n";
 	if (nick.empty() || nick.find_first_of(invalidChars) != std::string::npos
-		|| invalidStart.find(nick[0]) !=  std::string::npos || isNickTaken(nick) || nick.find(' ') != std::string::npos) 
+		|| invalidStart.find(nick[0]) !=  std::string::npos || nick.find(' ') != std::string::npos) 
 	{
-		sendResponse("Invalid nick!", fd);
+		sendResponse(error, fd);
+		return ;
+	}
+	error = ":" + this->name + " 433 * " + nick + " :Nickname is already in use\r\n";
+	if (isNickTaken(nick))
+	{
+		sendResponse(error, fd);
 		return ;
 	}
 	if (!client->getLogNick())
@@ -301,7 +310,8 @@ void Server::eraseClientFromChannels(int fd, std::string quitMessage)
 			it--;
 		}
 		else if (it->checkClientExist(fd))
-		{
+		{	
+			addRandomAdmin(fd, it->getChannelName());
 			channelSendResponse(it->getChannelName(), message, fd);
 			it->eraseClientChannel(fd);
 		}
@@ -500,4 +510,25 @@ void Server::removeChannel(std::string channelName)
             break;
         }
     }
+}
+
+void Server::addRandomAdmin(int fd, std::string channelName)
+{
+	Channel *channel = getChannel(channelName);
+	std::vector<std::pair<int, bool> >& clients_pairs = channel->getClients_pairs();
+	for (size_t i = 0; i < clients_pairs.size(); i++)
+	{
+		if (clients_pairs[i].first != fd)
+		{
+			clients_pairs[i].second = true;
+			Client *client_aux = getClientByFd(clients_pairs[i].first);
+			std::string modeMsg = ":" + client_aux->getNickName() + "!" + client_aux->getUserName() +"@localhost MODE #" + channelName + " +o " + client_aux->getNickName() + "\r\n";
+			std::vector<std::pair<int, bool> >& members = channel->getClients_pairs();
+			for (size_t j = 0; j < members.size(); j++)
+			{
+				sendResponse(modeMsg, members[j].first);
+			}
+			return;
+		}
+	}
 }

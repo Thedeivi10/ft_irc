@@ -26,7 +26,7 @@ void Server::ft_privmsg(std::string buffer, int fd)
 			return ;
 		}
 		buffer.erase(0, token.size() + 1);
-		response = trimLeading(buffer);
+		response = generateResponse(trimLeading(buffer));
 		channelSendResponse(destination, response, fd);
 	}
 	else
@@ -46,4 +46,21 @@ void Server::ft_privmsg(std::string buffer, int fd)
 	}
 
 	return ;
+}
+
+std::string Server::generateResponse(std::string message)
+{
+	std::string response;
+
+	if (message[0] != ':')
+	{
+		std::istringstream iss(message);
+
+		iss >> response;
+	}
+	else
+	{
+		response = message.erase(0, 1);
+	}
+	return response;
 }

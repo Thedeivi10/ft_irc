@@ -66,6 +66,19 @@ void Channel::eraseClientChannel(int fd)
 			it--;
         } 
     }
+
+	std::vector<std::pair<int, bool> >::iterator it2;
+    
+    if (members_invite.empty())
+        return;
+    for (it2 = members_invite.begin(); it2 != members_invite.end(); it2++) 
+	{
+        if (it2->first == fd) 
+		{
+            it2 = members_invite.erase(it2);
+			it2--;
+        } 
+    }
 }
 
 bool Channel::checkIfAdmin(int fd)
@@ -126,6 +139,11 @@ bool Channel::getPassBoolean()
 bool Channel::getTopicBolean()
 {
 	return this->topic_bolean;
+}
+
+void Channel::setTopic(std::string topic)
+{
+	this->topic = topic;
 }
 
 std::string Channel::getTopic()
