@@ -47,11 +47,10 @@ void Server::oMode(std::string mode, std::string arg, std::string channelName, i
 	std::string response;
 	Channel *channel = getChannel(channelName);
 	Client *client = getClientByNick(arg);
-	(void)fd;
 
 	if (arg == "")
 	{
-		sendfillmessage(ERR_NEEDMOREPARAMS, channelName, fd);
+		sendfillmessage(ERR_NEEDMOREPARAMS, mode, fd); 
 		return;
 	}
 	if (!client)

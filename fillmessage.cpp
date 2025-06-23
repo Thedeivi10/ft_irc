@@ -107,6 +107,8 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 		case (ERR_NOTONCHANNEL):
 			joinMsg = ":" + this->name + " 442 " + client->getNickName() + " #" + channelName + " :You're not on that channel" +  "\r\n";
 			break;
+		case (ERR_NEEDMOREPARAMS):
+			joinMsg = ":" + this->name + " 461 " + client->getNickName() + " "+ channelName + " :Not enough parameters\r\n";
 		case (ERR_KEYSET):
 			joinMsg = ":" + this->name + " 467 " + client->getNickName() + " #" + channelName + " :Channel key already set" +  "\r\n";
 			break;
