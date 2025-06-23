@@ -167,6 +167,7 @@ void Server::checkNick(std::string buffer, std::string token, int fd)
 	else if (client->getRegistered())
 	{
 		std::string message =":" + client->getNickName() + "!" + client->getUserName() + "@" + this->name + " NICK :" + nick;
+		sendResponse(message, fd);
 		client->setNickName(nick);
 	}
 	else
