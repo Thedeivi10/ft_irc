@@ -271,12 +271,8 @@ void Server::proccesCommand(std::string buffer, int fd)
 	{
 		if (iequals(token, "JOIN"))
 			ft_join(buffer, fd);
-		else if (iequals(token, "PART"))
-			ft_part(buffer, fd);
 		else if (iequals(token, "MODE"))
 			ft_mode(buffer, fd);
-		else if (iequals(token, "LIST"))
-			ft_list(buffer, fd);
 		else if (iequals(token, "INVITE"))
 			ft_invite(buffer, fd);
 		else if (iequals(token, "KICK"))

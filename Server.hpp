@@ -101,9 +101,7 @@ class Server
 		void ft_invite(std::string buffer, int fd);
 		void ft_join(std::string buffer, int fd);
 		void ft_kick(std::string buffer, int fd);
-		void ft_list(std::string buffer, int fd);
 		void ft_mode(std::string buffer, int fd);
-		void ft_part(std::string buffer, int fd);
 		void ft_privmsg(std::string buffer, int fd);
 		void ft_topic(std::string buffer, int fd);
 
