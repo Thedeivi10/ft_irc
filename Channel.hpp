@@ -21,7 +21,8 @@ class Channel
 		std::pair<int , bool> max_members;
 		std::vector<std::pair<int, bool> > members_invite;
 		
-
+		bool hasTopic;
+		
 	public:
 		Channel(std::string channelName, int fd, std::vector <Client> *lients_vector);
 		~Channel();
@@ -35,6 +36,7 @@ class Channel
 		bool checkClientExist(int fd);
 		void eraseClientChannel(int fd);
 		bool checkIfAdmin(int fd);
+
 
 		std::vector<std::pair<int, bool> > &getClients_pairs();
 

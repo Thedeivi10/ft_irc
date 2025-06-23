@@ -217,4 +217,3 @@ bool Channel::checkPasswordChannel(std::string pass)
 	else
 		return false;
 }
-
