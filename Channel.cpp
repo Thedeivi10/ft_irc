@@ -235,3 +235,22 @@ bool Channel::checkPasswordChannel(std::string pass)
 	else
 		return false;
 }
+
+bool Channel::checkIfLastAdmin(int fd)
+{
+	int admins = 0;
+
+	if (!this->checkIfAdmin(fd))
+		return false;
+
+	for (size_t i = 0; i < clients_pairs.size(); i++) 
+	{
+        if (clients_pairs[i].second == true)
+		{
+			admins++;
+		}
+    }
+	if (admins <= 1)
+		return true;
+    return false;
+}

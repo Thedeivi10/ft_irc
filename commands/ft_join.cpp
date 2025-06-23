@@ -38,7 +38,7 @@ void Server::ft_join(std::string buffer, int fd)
 		if (channel->getPassBoolean())
 		{
 			iss >> token;
-			if (channel->checkPasswordChannel(token))
+			if (!channel->checkPasswordChannel(token))
 			{
 				sendfillmessage(ERR_BADCHANNELKEY, channel->getChannelName(), fd);
         		return ;

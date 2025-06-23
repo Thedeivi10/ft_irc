@@ -37,6 +37,8 @@ class Channel
 
 		std::vector<std::pair<int, bool> > &getClients_pairs();
 
+		bool checkIfLastAdmin(int fd);
+
 
 		void setPassBoolean(bool pass);
 
