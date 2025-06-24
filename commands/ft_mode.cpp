@@ -70,7 +70,11 @@ void Server::oMode(std::string mode, std::string arg, std::string channelName, i
 			if (mode == "+o")
 				channel->getClients_pairs()[i].second = true;
 			else if (mode == "-o")
+			{
+				if (client->getNickName() == arg)
+					return;
 				channel->getClients_pairs()[i].second = false;
+			}
 		}
     }
 }
@@ -167,18 +171,31 @@ void Server::tMode(std::string mode, std::string channelName, int fd)
 		channel->setTopicBolean(false);
 }
 
-void Server::sendModes(std::vector<std::pair<std::string, std::string> > &mode_options, std::string channelName, int fd)
+void Server:: sendModes(std::vector<std::pair<std::string, std::string> > &mode_options, std::string channelName, int fd)
 {
 	Channel *channel = getChannel(channelName);
 	std::string modes;
 	std::string  c;
 	Client *client = getClientByFd(fd);
 
-	c = mode_options[0].first;
-	modes += c;
+	modes = "";
 	(void)channel;
-	for (size_t i = 1; i < mode_options.size(); i++)
+	for (size_t i = 0; i < mode_options.size(); i++)
 	{
+		if (i == 0)
+		{
+			if (mode_options[0].first == "-o" && mode_options[0].second == client->getNickName())
+				continue;
+			c = mode_options[0].first;
+			modes += c;
+			continue;
+		}
+		if (modes.empty())
+		{
+			c = mode_options[i].first;
+			modes += c;
+			continue;
+		}
 		if (c[0] != mode_options[i].first[0])
 		{
 			c = mode_options[i].first;
@@ -188,6 +205,8 @@ void Server::sendModes(std::vector<std::pair<std::string, std::string> > &mode_o
 	}
 	for (size_t i = 0; i < mode_options.size(); i++)
 	{
+		if (mode_options[i].first == "-o" && client->getNickName() == mode_options[i].second)
+			continue;
 		if (!mode_options[i].second.empty())
 		{
 			modes += " " + mode_options[i].second;
@@ -223,6 +242,12 @@ void Server::ft_mode(std::string buffer, int fd)
 		if (!(iss >> token))
 		{
 			sendfillmessage(RPL_CHANNELMODEIS, channelName, fd);
+			return;
+		}
+		Channel *channel = getChannel(channelName);
+		if (!channel->checkIfAdmin(fd))
+		{
+			sendfillmessage(ERR_CHANOPRIVSNEEDED, channelName, fd);
 			return;
 		}
 		if (!checkModeOptions(token, iss, mode_options, fd))
