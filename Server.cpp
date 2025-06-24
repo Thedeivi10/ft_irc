@@ -245,7 +245,7 @@ bool Server::iequalscommands(std::string token, std::string &buffer)
 		buffer = getCommandArg(buffer, token);
 		return true;
 	}
-	else if (iequals(token, "TOPIC")|| iequals(token, "PRIVMSG"))
+	else if (iequals(token, "TOPIC")|| iequals(token, "PRIVMSG") || iequals(token, "BOT"))
 	{
 		buffer = getCommandArg(buffer, token);
 		return true;
@@ -289,6 +289,8 @@ void Server::proccesCommand(std::string buffer, int fd)
 			ft_topic(buffer, fd);
 		else if (iequals(token, "PRIVMSG"))
 			ft_privmsg(buffer, fd);
+		else if (iequals(token, "BOT"))
+			ft_bot(buffer, fd);
 	}
 	else
 		sendResponse("Command not found: " + token+"\r\n", fd);

@@ -108,6 +108,7 @@ class Server
 		void ft_mode(std::string buffer, int fd);
 		void ft_privmsg(std::string buffer, int fd);
 		void ft_topic(std::string buffer, int fd);
+		void ft_bot(std::string buffer, int fd);
 
 		void setbuffer(std::string buffer);
 		std::string getbuffer();
@@ -116,11 +117,3 @@ class Server
 std::string getCommandArg(std::string buffer, const std::string &cmd);
 std::string trimLeading(std::string s);
 bool iequals(const std::string &a, const std::string &b);
-void ft_invite(std::string buffer, int fd);
-void ft_join(std::string buffer, int fd);
-void ft_list(std::string buffer, int fd);
-void ft_kick(std::string buffer, int fd);
-void ft_topic(std::string buffer, int fd);
-void ft_privmsg(std::string buffer, int fd);
-void ft_mode(std::string buffer, int fd);
-void ft_part(std::string buffer, int fd);

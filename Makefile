@@ -8,7 +8,7 @@ NAME    := ircserv
 SRCS    := main.cpp Server.cpp Client.cpp Helpers.cpp Channel.cpp fillmessage.cpp
 
 COMMANDS := ft_invite.cpp ft_kick.cpp ft_privmsg.cpp \
-            ft_join.cpp ft_mode.cpp ft_topic.cpp
+            ft_join.cpp ft_mode.cpp ft_topic.cpp ft_bot.cpp\
 
 SRCS     += $(addprefix commands/, $(COMMANDS))
 

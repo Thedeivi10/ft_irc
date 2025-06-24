@@ -29,6 +29,11 @@ void Server::ft_privmsg(std::string buffer, int fd)
 		}
 		buffer.erase(0, token.size() + 1);
 		message = generateResponse(trimLeading(buffer));
+		if (message.empty())
+		{
+			sendfillmessage(ERR_NOTEXTTOSEND, "", fd);
+			return ;
+		}
 		std::string response = ":" + sender->getNickName() + "!" + sender->getUserName() + "@localhost PRIVMSG #" + destination + " :" + message + "\r\n";
         channelSendResponse(destination, response, fd);
 	}
@@ -44,6 +49,11 @@ void Server::ft_privmsg(std::string buffer, int fd)
 		}
 		buffer.erase(0, token.size() + 1);
 		message = generateResponse(trimLeading(buffer));
+		if (message.empty())
+		{
+			sendfillmessage(ERR_NOTEXTTOSEND, "", fd);
+			return ;
+		}
         std::string response = ":" + sender->getNickName() + "!" + sender->getUserName() + "@localhost PRIVMSG " + destination + " :" + message + "\r\n";
         sendResponse(response, client->getClifd());
 	}
