@@ -41,13 +41,6 @@ void Server::ft_kick(std::string buffer, int fd)
             sendResponse(response, fd);
             return ;
 		}
-
-		std::vector<std::pair<int, bool> > members = channel->getClients_pairs(); // Copy before removal
-		std::string modeMsg = ":" + client_aux->getNickName() + "!" + client_aux->getUserName() +"@localhost KICK #" + channel->getChannelName() + " " + nick + " :" + reason + "\r\n";
-		for (size_t i = 0; i < members.size(); i++)
-		{
-			sendResponse(modeMsg, members[i].first);
-		}
 		if (fd == client->getClifd())
 		{
 			if (channel->checkIfLastAdmin(fd))
@@ -55,12 +48,16 @@ void Server::ft_kick(std::string buffer, int fd)
 				addRandomAdmin(fd, channel->getChannelName());
 			}
 		}
-		channel->eraseClientChannel(client->getClifd());
-		if (channel->getClients_pairs().size() <= 0)
+		std::vector<std::pair<int, bool> > members = channel->getClients_pairs(); // Copy before removal
+		std::string modeMsg = ":" + client_aux->getNickName() + "!" + client_aux->getUserName() +"@localhost KICK #" + channel->getChannelName() + " " + nick + " :" + reason + "\r\n";
+		for (size_t i = 0; i < members.size(); i++)
 		{
-			response = "Channel: " + channel->getChannelName() + " has been deleted!";
-			sendResponse(response, fd);	
-			removeChannel(token);
+			sendResponse(modeMsg, members[i].first);
+		}
+		channel->eraseClientChannel(client->getClifd());
+		if (channel->getClients_pairs().empty())
+		{
+			removeChannel(channel->getChannelName());
 			return ;
 		}
 		

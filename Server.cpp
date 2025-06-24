@@ -174,7 +174,7 @@ void Server::checkNick(std::string buffer, std::string token, int fd)
 	}
 	else if (client->getRegistered())
 	{
-		std::string message =":" + client->getNickName() + "!" + client->getUserName() + "@" + this->name + " NICK :" + nick;
+		std::string message =":" + client->getNickName() + "!" + client->getUserName() + "@" + this->name + " NICK :" + nick + "\r\n";
 		sendResponse(message, fd);
 		client->setNickName(nick);
 	}
@@ -339,7 +339,7 @@ void Server::recieved_data(int fd)
 		} */
 		if (bytes_read == 0)
 		{
-			quitMessage = ": Says goodbye";
+			quitMessage = ": Says goodbye\r\n";
 		}
 		else
 		{

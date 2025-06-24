@@ -9,10 +9,15 @@ void Server::ft_join(std::string buffer, int fd)
 	iss >> token;
 	if (!token.empty() && token [0] == '#')
     	token.erase(0, 1);
-	else
+	else 
 	{
 		sendfillmessage(ERR_NOSUCHCHANNEL, token, fd);
     	return;
+	}
+	if (token.empty())
+	{
+		sendfillmessage(ERR_NEEDMOREPARAMS, "CHANNEL NAME IS EMPTY", fd);
+		return;
 	}
 	if (token.find_first_of(invalidChars) != std::string::npos || (token.length() > 1 && token.substr(0,2)== "^G")
 		|| token.find(' ') != std::string::npos)

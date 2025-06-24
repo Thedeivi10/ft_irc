@@ -57,8 +57,6 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 	if (channelName != "")
 	{
 		channel = getChannel(channelName);
-		if (!channel)
-			return ;
 	}
 	std::string joinMsg = "";
 
@@ -109,6 +107,7 @@ void Server::sendfillmessage(int mesage_type, std::string channelName, int fd)
 			break;
 		case (ERR_NEEDMOREPARAMS):
 			joinMsg = ":" + this->name + " 461 " + client->getNickName() + " "+ channelName + " :Not enough parameters\r\n";
+			break;
 		case (ERR_KEYSET):
 			joinMsg = ":" + this->name + " 467 " + client->getNickName() + " #" + channelName + " :Channel key already set" +  "\r\n";
 			break;
