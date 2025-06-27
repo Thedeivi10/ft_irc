@@ -172,16 +172,13 @@ void Server::checkNick(std::string buffer, std::string token, int fd)
 		client->setLogNick(true);
 		sendResponse("Please put your User\r\n", fd);
 	}
-	else if (client->getRegistered())
+	else
 	{
 		std::string message =":" + client->getNickName() + "!" + client->getUserName() + "@" + this->name + " NICK :" + nick + "\r\n";
 		sendResponse(message, fd);
 		client->setNickName(nick);
 	}
-	else
-	{
-		sendResponse("Before change your nickname, please put your user\r\n", fd);
-	}
+
 	return ;
 }
 

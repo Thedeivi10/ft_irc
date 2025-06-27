@@ -35,9 +35,7 @@ if (newTopic.empty()) {
             return;
         }
         channel->setTopic(newTopic);
-        std::string topicMsg = ":" + client->getNickName() + "!" + 
-                               client->getUserName() + "@localhost TOPIC #" + 
-                               channelName + " :" + newTopic + "\r\n";
+        std::string topicMsg = ":" + client->getNickName() + "!" + client->getUserName() + "@localhost TOPIC #" + channelName + " :" + newTopic + "\r\n";
         std::vector<std::pair<int, bool> >& members = channel->getClients_pairs();
         for (size_t i = 0; i < members.size(); i++) {
             sendResponse(topicMsg, members[i].first);
