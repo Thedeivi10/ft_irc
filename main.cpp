@@ -6,18 +6,18 @@ bool ft_check_args(char **av)
 	std::string password(av[2]);
 
 	if (port.empty() || port.find_first_not_of("0123456789") != std::string::npos)
-		return (std::cerr << "Invalid port33!\n", 1);
+		return (std::cerr << "Invalid port!\n", 0);
 	if (port.size() > 5)
-		return (std::cerr << "Invalid port!\n", 1);
+		return (std::cerr << "Invalid port!\n", 0);
 	int portNum = atoi(port.c_str());
 	if (portNum < 1024 || portNum > 65535)
-		return (std::cerr << "Invalid port range!\n", 1);
+		return (std::cerr << "Invalid port range!\n", 0);
 	if (password.empty())
-		return (std::cerr << "Password must not be empty!\n", 1);
+		return (std::cerr << "Password must not be empty!\n", 0);
 	for (size_t i = 0; i < password.size(); i++)
 	{
 		if (!std::isalnum(password[i]))
-			return (std::cerr << "Password must be alphanumeric!\n", 1);			
+			return (std::cerr << "Password must be alphanumeric!\n", 0);			
 	}
 	return (true);
 }

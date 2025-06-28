@@ -338,7 +338,7 @@ void Server::recieved_data(int fd)
 		} */
 		if (bytes_read == 0)
 		{
-			quitMessage = ": Says goodbye\r\n";
+			quitMessage = ":Says goodbye\r\n";
 		}
 		else
 		{
